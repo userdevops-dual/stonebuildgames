@@ -89,7 +89,8 @@
 
   /* ---- Reveal animations ---- */
   const reveals = $$('.reveal');
-  const showAll = () => reveals.forEach((el) => el.classList.add('is-in'));
+  const heroText = $$('.hero-text');
+  const showAll = () => { reveals.forEach((el) => el.classList.add('is-in')); heroText.forEach((el) => el.classList.add('is-in')); };
   const lateStart = document.documentElement.classList.contains('reveal-ready');
 
   function revealWithGsap() {
@@ -102,14 +103,19 @@
     const hero = $('.hero');
     if (hero) {
       const words = $$('.word', hero);
-      const rest = $$('.reveal', hero).filter((el) => !el.matches('h1'));
+      const rest = $$('.reveal', hero);
+      const h1 = $('.hero h1'), lead = $('.hero .lead');
       gsap.set(rest, { opacity: 0, y: 26 });
       if (words.length) {
-        gsap.set(words, { opacity: 0, y: 46, rotateX: -40, transformOrigin: '50% 100%' });
-        $('.hero h1').classList.add('is-in');
-        gsap.to(words, { opacity: 1, y: 0, rotateX: 0, duration: 1.1, stagger: 0.07, ease: 'power4.out', delay: 0.25 });
+        // Text is never fully transparent, so it still counts as the LCP element
+        gsap.set(h1, { opacity: 1, y: 0 });
+        gsap.set(words, { opacity: 0.15, y: 46, rotateX: -40, transformOrigin: '50% 100%' });
+        gsap.to(words, { opacity: 1, y: 0, rotateX: 0, duration: 1.1, stagger: 0.07, ease: 'power4.out', delay: 0.2,
+          onComplete: () => { h1.classList.add('is-in'); h1.style.cssText = ''; } });
       }
-      gsap.to(rest, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1, ease: 'power3.out', delay: 0.55, onComplete: done(rest) });
+      if (lead) gsap.fromTo(lead, { opacity: 0.35, y: 18 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.45,
+        onComplete: () => { lead.classList.add('is-in'); lead.style.cssText = ''; } });
+      gsap.to(rest, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1, ease: 'power3.out', delay: 0.6, onComplete: done(rest) });
       // Parallax on scroll
       if (isDesktop) {
         gsap.to('.hero .container', { y: 140, opacity: 0.15, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });

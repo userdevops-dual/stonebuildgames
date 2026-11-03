@@ -12,7 +12,6 @@ User-agent: Perplexity-User
 Allow: /
 
 User-agent: *
-Content-Signal: search=yes, ai-input=yes
 Allow: /
 
 Sitemap: https://stonebuildgames.com/sitemap.xml

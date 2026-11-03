@@ -14,7 +14,7 @@
   const steamIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="#fff"><path d="M12 2a10 10 0 0 0-10 9.3l5.4 2.2a2.8 2.8 0 0 1 1.6-.5h.2l2.4-3.5v-.1a3.8 3.8 0 1 1 3.8 3.8h-.1l-3.4 2.4v.2a2.8 2.8 0 0 1-5.6.3L2.4 14.6A10 10 0 1 0 12 2zm-5.7 15.2 1.3.5a2.1 2.1 0 1 0 1.2-4l-1.3-.5a1.5 1.5 0 1 1-1.2 4zm9.1-6a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm0-4.4a1.9 1.9 0 1 1 0 3.8 1.9 1.9 0 0 1 0-3.8z"/></svg>';
 
   function badge(href, icon, small, label) {
-    if (!href) return `<span class="store-badge disabled">${icon}<span><small>${small}</small>${label}<span class="sr-only"> (not available yet)</span></span></span>`;
+    if (!href) return `<span class="store-badge disabled">${icon}<span><small>COMING TO</small>${label}<span class="sr-only"> (not available yet)</span></span></span>`;
     return `<a class="store-badge" href="${esc(href)}" target="_blank" rel="noopener">${icon}<span><small>${small}</small>${label}<span class="sr-only"> (opens in a new tab)</span></span></a>`;
   }
 

@@ -399,6 +399,10 @@ h3 { font-size: clamp(1.15rem, 1.6vw, 1.4rem); }
 .js .reveal { opacity: 0; transform: translateY(22px); }
 .js .reveal.is-in { opacity: 1; transform: none; transition: opacity .7s var(--ease-out), transform .7s var(--ease-out); }
 .js.reveal-ready .reveal { opacity: 1; transform: none; transition: opacity .6s var(--ease-out), transform .6s var(--ease-out); }
+/* Hero headline + lead stay visible at first paint (LCP), then animate in */
+.js .hero-text { opacity: .35; transform: translateY(18px); }
+.js .hero-text.is-in, .js.reveal-ready .hero-text { opacity: 1; transform: none; transition: opacity .7s var(--ease-out), transform .7s var(--ease-out); }
+h2[id], h3[id], .page-section[id], .page-hero[id] { scroll-margin-top: calc(var(--header-h) + 16px); }
 
 /* ---------- Procedural cover art ---------- */
 .art { position: absolute; inset: 0; overflow: hidden; }
@@ -453,7 +457,7 @@ h3 { font-size: clamp(1.15rem, 1.6vw, 1.4rem); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; scroll-snap-type: none; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-  .js .reveal { opacity: 1; transform: none; }
+  .js .reveal, .js .hero-text { opacity: 1; transform: none; }
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
 }
 

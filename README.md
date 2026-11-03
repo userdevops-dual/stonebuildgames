@@ -71,7 +71,8 @@ Add custom domain `stonebuildgames.com` (Cloudflare manages DNS automatically). 
 **GitHub Pages:** push `site/` contents to a repo, enable Pages, add a `CNAME` file containing `stonebuildgames.com`.
 
 After deploy:
-1. Submit `https://stonebuildgames.com/sitemap.xml` in Google Search Console.
+1. Submit `https://stonebuildgames.com/sitemap.xml` in Google Search Console and Bing Webmaster Tools.
+2. IndexNow: the key file `site/<key>.txt` is already in place; after launch, ping `https://api.indexnow.org/indexnow?url=https://stonebuildgames.com/&key=<key>` (the key is the file name).
 2. Verify the OG image at https://stonebuildgames.com/assets/og-image.png renders in a share preview.
 
 ## Email: support@stonebuildgames.com
