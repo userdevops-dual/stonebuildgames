@@ -18,13 +18,14 @@ Domain: https://stonebuildgames.com  ·  Email: support@stonebuildgames.com
 
 ## Design system
 - Theme: dark "forge & stone". Background #0A0C10, surface #11151C, text #E8ECF2.
-- Accent: ember amber #F5A524 (primary), cool steel #7DD3FC (secondary). Gradient only on key moments.
+- Accent: logo orange #FF6A2B (primary), cool steel #7DD3FC (secondary). Gradient only on key moments.
 - Type: Sora (display) + Inter (body), fluid sizes via clamp().
 - Layout: 1240px container, side gutters clamp(24px, 6vw, 96px). 8pt spacing scale.
 - Motion: GSAP word-by-word hero reveal, blur/slide section reveals, hero parallax on scroll, 3D low-poly
   "stones" with mouse parallax (desktop only, lazy-loaded), tilt cards, magnetic buttons, pill navbar on scroll,
   cross-document view transitions between pages. All motion respects prefers-reduced-motion.
-- Logo: "cairn" mark (three stacked stones, amber top stone). Footer carries a giant STONEBUILD wordmark.
+- Logo: "Mined Block" mark (isometric block with a mined-out corner and a small cube popping free), orange #FF6A2B.
+  Lockup: STONE BUILD in Chakra Petch 700 + spaced GAMES in orange. Footer carries a giant STONEBUILD wordmark.
 
 ## Pages
 | URL | Purpose |

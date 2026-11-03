@@ -29,7 +29,7 @@ function init(THREE) {
   camera.position.set(0, 0, 14);
 
   scene.add(new THREE.AmbientLight(0x3a4150, 0.9));
-  const ember = new THREE.PointLight(0xf5a524, 60, 40, 1.6); ember.position.set(8, 5, 6); scene.add(ember);
+  const ember = new THREE.PointLight(0xff6a2b, 60, 40, 1.6); ember.position.set(8, 5, 6); scene.add(ember);
   const steel = new THREE.PointLight(0x7dd3fc, 28, 40, 1.6); steel.position.set(-9, -4, 4); scene.add(steel);
   const key = new THREE.DirectionalLight(0xffffff, 0.6); key.position.set(-3, 6, 8); scene.add(key);
 
@@ -37,7 +37,7 @@ function init(THREE) {
   const geos = [new THREE.IcosahedronGeometry(1, 0), new THREE.DodecahedronGeometry(1, 0), new THREE.OctahedronGeometry(1, 0), new THREE.TetrahedronGeometry(1, 0)];
   const solid = new THREE.MeshStandardMaterial({ color: 0x1c222c, roughness: 0.55, metalness: 0.35, flatShading: true });
   const solidLight = new THREE.MeshStandardMaterial({ color: 0x2a313d, roughness: 0.5, metalness: 0.4, flatShading: true });
-  const wire = new THREE.MeshBasicMaterial({ color: 0xf5a524, wireframe: true, transparent: true, opacity: 0.35 });
+  const wire = new THREE.MeshBasicMaterial({ color: 0xff6a2b, wireframe: true, transparent: true, opacity: 0.35 });
   const wireSteel = new THREE.MeshBasicMaterial({ color: 0x7dd3fc, wireframe: true, transparent: true, opacity: 0.22 });
   const rand = (a, b) => a + Math.random() * (b - a);
   const stones = [];
@@ -54,7 +54,7 @@ function init(THREE) {
   const pCount = 420, pos = new Float32Array(pCount * 3);
   for (let i = 0; i < pCount; i++) { pos[i * 3] = rand(-16, 16); pos[i * 3 + 1] = rand(-9, 9); pos[i * 3 + 2] = rand(-12, 4); }
   const pGeo = new THREE.BufferGeometry(); pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const dust = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xf5a524, size: 0.045, transparent: true, opacity: 0.55 }));
+  const dust = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xff6a2b, size: 0.045, transparent: true, opacity: 0.55 }));
   scene.add(dust);
 
   const target = { x: 0, y: 0 }, cur = { x: 0, y: 0 };

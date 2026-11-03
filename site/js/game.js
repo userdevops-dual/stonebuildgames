@@ -79,7 +79,7 @@
   function drawBlock(x, y, w, isMoving, hue) {
     if (w <= 0) return;
     const g = ctx.createLinearGradient(0, y, 0, y + BLOCK_H);
-    if (isMoving) { g.addColorStop(0, '#ffd27a'); g.addColorStop(1, '#e28f0c'); }
+    if (isMoving) { g.addColorStop(0, '#ffa072'); g.addColorStop(1, '#f25a18'); }
     else { g.addColorStop(0, stoneColor(hue, 32)); g.addColorStop(1, stoneColor(hue, 18)); }
     ctx.shadowColor = 'rgba(0,0,0,0.45)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 4;
     roundRect(x, y, w, BLOCK_H - 3, 7); ctx.fillStyle = g; ctx.fill();
@@ -93,13 +93,13 @@
     if (shake > 0) ctx.translate((Math.random() - 0.5) * shake * 10, (Math.random() - 0.5) * shake * 10);
     // guide line of the top stone
     const top = blocks[blocks.length - 1];
-    if (top && state === 'playing') { ctx.fillStyle = 'rgba(245,165,36,0.08)'; ctx.fillRect(top.x, 0, top.w, H); }
+    if (top && state === 'playing') { ctx.fillStyle = 'rgba(255,106,43,0.08)'; ctx.fillRect(top.x, 0, top.w, H); }
     // plinth
     ctx.fillStyle = 'rgba(255,255,255,0.05)'; roundRect(W * 0.12, H - BASE + cameraY, W * 0.76, BASE + 40, 12); ctx.fill();
     blocks.forEach((b, i) => drawBlock(b.x, blockY(i), b.w, false, b.hue));
     debris.forEach((d) => { ctx.save(); ctx.translate(d.x + d.w / 2, d.y + BLOCK_H / 2); ctx.rotate(d.rot); ctx.globalAlpha = 0.85; drawBlock(-d.w / 2, -BLOCK_H / 2, d.w, false, d.hue); ctx.restore(); });
     if (moving && state === 'playing') drawBlock(moving.x, blockY(blocks.length), moving.w, true, moving.hue);
-    if (flash > 0) { ctx.fillStyle = `rgba(245,165,36,${flash * 0.22})`; ctx.fillRect(0, 0, W, H); }
+    if (flash > 0) { ctx.fillStyle = `rgba(255,106,43,${flash * 0.22})`; ctx.fillRect(0, 0, W, H); }
     ctx.restore();
   }
   function loop(t) {
