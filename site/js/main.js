@@ -76,6 +76,16 @@
     card.addEventListener('pointerleave', () => { card.style.setProperty('--rx', '0deg'); card.style.setProperty('--ry', '0deg'); });
   });
 
+
+  /* ---- Hero visual: pointer parallax ---- */
+  const hv = $('.hero-visual');
+  if (hv && isDesktop && !reduceMotion) {
+    window.addEventListener('pointermove', (e) => {
+      hv.style.setProperty('--px', ((e.clientX / window.innerWidth) - 0.5).toFixed(3));
+      hv.style.setProperty('--py', ((e.clientY / window.innerHeight) - 0.5).toFixed(3));
+    }, { passive: true });
+  }
+
   /* ---- Split hero headline into words ---- */
   const h1 = $('.hero h1');
   if (h1) {

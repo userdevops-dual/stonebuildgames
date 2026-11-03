@@ -521,3 +521,53 @@ h2[id], h3[id], .page-section[id], .page-hero[id] { scroll-margin-top: calc(var(
 .faq h3 { font-size: 1.02rem; }
 .faq p { color: var(--text-2); font-size: 0.94rem; }
 @media (max-width: 900px) { .faq { grid-template-columns: 1fr; } }
+
+/* ==========================================================================
+   Hero v3 — two columns, solid type, animated Mined Block visual
+   ========================================================================== */
+.hero .container.hero-grid { max-width: var(--container); display: grid; grid-template-columns: 1.08fr 0.92fr; gap: clamp(24px, 4vw, 72px); align-items: center; justify-items: stretch; }
+.hero-copy { display: grid; gap: clamp(18px, 2.6vh, 30px); justify-items: start; }
+.hero h1 { max-width: none; font-size: clamp(3rem, 6.6vw, 6.2rem); letter-spacing: -0.045em; line-height: 0.96; }
+.hero h1 .line { display: block; color: var(--text); }
+.hero h1 .line-accent { color: var(--accent); }
+.hero .h1-kicker { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 18px; letter-spacing: 0.18em; }
+.hero .h1-kicker::before { content: ""; width: 22px; height: 2px; border-radius: 2px; background: currentColor; }
+.hero .lead { max-width: 46ch; }
+
+.hero-visual { position: relative; width: 100%; max-width: 560px; aspect-ratio: 1; justify-self: end; --px: 0; --py: 0; }
+.hv-ring { position: absolute; inset: 6%; border-radius: 50%; border: 1px dashed rgba(255,255,255,0.08); animation: spin 60s linear infinite; }
+.hv-ring::after { content: ""; position: absolute; inset: 14%; border-radius: 50%; border: 1px solid rgba(var(--accent-rgb), 0.12); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hv-glow { position: absolute; inset: 18%; border-radius: 50%; background: radial-gradient(circle, rgba(var(--accent-rgb), 0.28), transparent 65%); filter: blur(30px); animation: breathe 6s var(--ease-in-out) infinite; }
+@keyframes breathe { 0%,100% { opacity: .7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+.hv-stage { position: absolute; inset: 14%; transform: translate3d(calc(var(--px) * 14px), calc(var(--py) * 10px), 0) rotate(calc(var(--px) * 2deg)); transition: transform .6s var(--ease-out); }
+.hv-mark { position: relative; z-index: 1; width: 100%; height: 100%; overflow: visible; animation: hover 7s var(--ease-in-out) infinite; filter: drop-shadow(0 30px 40px rgba(0,0,0,0.55)); }
+@keyframes hover { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+.hv-piece { transform-box: fill-box; transform-origin: center; animation: pop 3.6s var(--ease-in-out) infinite; }
+@keyframes pop { 0%,100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(6px, -12px) rotate(8deg); } }
+.hv-floor { animation: ember 3.6s var(--ease-in-out) infinite; }
+@keyframes ember { 0%,100% { fill: #9E411A; } 50% { fill: #c4521f; } }
+.hv-shadow { position: absolute; left: 22%; right: 22%; bottom: -4%; height: 8%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,0.6), transparent); animation: shadow 7s var(--ease-in-out) infinite; }
+@keyframes shadow { 0%,100% { transform: scaleX(1); opacity: .9; } 50% { transform: scaleX(.86); opacity: .6; } }
+.hv-chip { position: absolute; z-index: 2; display: inline-flex; align-items: center; gap: 10px; padding: 9px 14px 9px 9px; border-radius: 14px; font-size: 0.82rem; color: var(--text-2); white-space: nowrap;
+  background: rgba(17, 21, 28, 0.72); border: 1px solid var(--line-strong); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 16px 40px -18px rgba(0,0,0,0.8);
+  animation: chip 8s var(--ease-in-out) infinite; }
+.hv-chip b { color: var(--text); font-weight: 600; }
+.hv-chip i { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: rgba(var(--accent-rgb), 0.14); color: var(--accent); }
+.hv-chip i svg { width: 16px; height: 16px; }
+.hv-chip.c1 { top: 12%; left: -2%; }
+.hv-chip.c2 { top: 48%; right: -4%; animation-delay: -2.5s; }
+.hv-chip.c3 { bottom: 10%; left: 6%; animation-delay: -5s; }
+@keyframes chip { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+@media (min-width: 1024px) and (max-height: 800px) {
+  .hero h1 { font-size: clamp(2.6rem, 5.6vw, 4.6rem); }
+  .hero .h1-kicker { margin-bottom: 12px; }
+  .hero-visual { max-width: 440px; }
+}
+@media (max-width: 900px) {
+  .hero .container.hero-grid { grid-template-columns: 1fr; }
+  .hero-visual { display: none; }
+  .hero h1 { font-size: clamp(3rem, 15vw, 4.4rem); }
+}
+@media (prefers-reduced-motion: reduce) { .hv-stage { transform: none; } }
