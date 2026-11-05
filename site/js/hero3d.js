@@ -10,7 +10,7 @@ if (mount) {
     mount.classList.add('is-fallback');
   } else {
     const start = () => import('three').then((THREE) => init(THREE)).catch(() => mount.classList.add('is-fallback'));
-    const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1500 }) : setTimeout(start, 400));
+    const idle = () => setTimeout(() => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1500 }) : start()), 900); // after the intro animation
     if (document.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
   }
 }
@@ -24,29 +24,30 @@ function init(THREE) {
   renderer.domElement.style.transition = 'opacity 1.2s ease';
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0a0c10, 0.055);
+  scene.fog = new THREE.FogExp2(0xffffff, 0.022);
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
   camera.position.set(0, 0, 14);
 
-  scene.add(new THREE.AmbientLight(0x3a4150, 0.9));
-  const ember = new THREE.PointLight(0xff6a2b, 60, 40, 1.6); ember.position.set(8, 5, 6); scene.add(ember);
-  const steel = new THREE.PointLight(0x7dd3fc, 28, 40, 1.6); steel.position.set(-9, -4, 4); scene.add(steel);
+  scene.add(new THREE.AmbientLight(0xffffff, 2.1));
+  const ember = new THREE.PointLight(0xff6a2b, 14, 40, 1.6); ember.position.set(8, 5, 6); scene.add(ember);
+  const steel = new THREE.PointLight(0xffffff, 8, 40, 1.6); steel.position.set(-9, -4, 4); scene.add(steel);
   const key = new THREE.DirectionalLight(0xffffff, 0.6); key.position.set(-3, 6, 8); scene.add(key);
 
   const group = new THREE.Group(); scene.add(group);
   const geos = [new THREE.IcosahedronGeometry(1, 0), new THREE.DodecahedronGeometry(1, 0), new THREE.OctahedronGeometry(1, 0), new THREE.TetrahedronGeometry(1, 0)];
-  const solid = new THREE.MeshStandardMaterial({ color: 0x1c222c, roughness: 0.55, metalness: 0.35, flatShading: true });
-  const solidLight = new THREE.MeshStandardMaterial({ color: 0x2a313d, roughness: 0.5, metalness: 0.4, flatShading: true });
-  const wire = new THREE.MeshBasicMaterial({ color: 0xff6a2b, wireframe: true, transparent: true, opacity: 0.35 });
-  const wireSteel = new THREE.MeshBasicMaterial({ color: 0x7dd3fc, wireframe: true, transparent: true, opacity: 0.22 });
+  const solid = new THREE.MeshStandardMaterial({ color: 0xe2e2e6, roughness: 0.8, metalness: 0.05, flatShading: true });
+  const solidLight = new THREE.MeshStandardMaterial({ color: 0xeeeef0, roughness: 0.85, metalness: 0.02, flatShading: true });
+  const wire = new THREE.MeshBasicMaterial({ color: 0xff6a2b, wireframe: true, transparent: true, opacity: 0.6 });
+  const wireSteel = new THREE.MeshBasicMaterial({ color: 0x52525b, wireframe: true, transparent: true, opacity: 0.3 });
   const rand = (a, b) => a + Math.random() * (b - a);
   const stones = [];
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 12; i++) {
     const isWire = i % 4 === 3;
     const mesh = new THREE.Mesh(geos[i % geos.length], isWire ? (i % 8 === 3 ? wire : wireSteel) : (i % 2 ? solid : solidLight));
-    mesh.scale.setScalar(rand(0.45, 1.6) * (isWire ? 1.25 : 1));
-    const side = Math.random() < 0.72 ? 1 : -1;
-    mesh.position.set(side === 1 ? rand(2.5, 11) : rand(-11, -5.5), rand(-5.5, 5.5), rand(-7, 2));
+    mesh.scale.setScalar(rand(0.28, 0.85) * (isWire ? 1.3 : 1));
+    // Keep clear of the headline: most stones sit on the right, the rest in the top and bottom bands
+    const right = i % 4 !== 0;
+    mesh.position.set(right ? rand(1.5, 11) : rand(-10, 0), right ? rand(-5.5, 5.5) : (i % 8 === 0 ? rand(4.6, 6) : rand(-6, -4.8)), rand(-8, 0));
     mesh.rotation.set(rand(0, Math.PI), rand(0, Math.PI), rand(0, Math.PI));
     mesh.userData = { rx: rand(-0.25, 0.25), ry: rand(-0.3, 0.3), fy: rand(0.2, 0.6), fa: rand(0.15, 0.45), ph: rand(0, Math.PI * 2), y0: mesh.position.y };
     group.add(mesh); stones.push(mesh);
@@ -54,7 +55,7 @@ function init(THREE) {
   const pCount = 420, pos = new Float32Array(pCount * 3);
   for (let i = 0; i < pCount; i++) { pos[i * 3] = rand(-16, 16); pos[i * 3 + 1] = rand(-9, 9); pos[i * 3 + 2] = rand(-12, 4); }
   const pGeo = new THREE.BufferGeometry(); pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const dust = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xff6a2b, size: 0.045, transparent: true, opacity: 0.55 }));
+  const dust = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xff6a2b, size: 0.04, transparent: true, opacity: 0.45 }));
   scene.add(dust);
 
   const target = { x: 0, y: 0 }, cur = { x: 0, y: 0 };
@@ -76,7 +77,7 @@ function init(THREE) {
     for (const m of stones) { const u = m.userData; m.rotation.x += u.rx * 0.016; m.rotation.y += u.ry * 0.016; m.position.y = u.y0 + Math.sin(t * u.fy + u.ph) * u.fa; }
     group.rotation.y = Math.sin(t * 0.05) * 0.08;
     dust.rotation.y = t * 0.012; dust.position.y = Math.sin(t * 0.1) * 0.3;
-    ember.intensity = 56 + Math.sin(t * 1.7) * 6;
+    ember.intensity = 13 + Math.sin(t * 1.7) * 2;
     renderer.render(scene, camera);
   }
   frame();

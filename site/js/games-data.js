@@ -11,7 +11,6 @@
      genre       e.g. "Puzzle", "Action RPG", "Hyper-casual"
      platforms   array: "Android", "iOS", "PC", "Web"
      status      "live" | "coming-soon" | "in-production"
-     theme       cover art theme when no image: "forge" | "steel" | "ember" | "moss" | "violet"
      cover       optional path to an image (recommended 1600×1000 WebP/PNG) e.g. "/assets/games/my-game.webp"
      playStore   Google Play URL or "" if not live yet
      appStore    App Store URL or ""
@@ -28,7 +27,6 @@
     genre: "Puzzle",
     platforms: ["Android", "iOS"],
     status: "live",
-    theme: "steel",
     cover: "",
     playStore: "https://play.google.com/store/apps/details?id=com.stonebuildgames.mygame",
     appStore: "",
@@ -46,7 +44,6 @@ window.STONEBUILD_GAMES = [
     genre: "To be announced",
     platforms: ["Android"],
     status: "in-production",
-    theme: "forge",
     cover: "",
     playStore: "",
     appStore: "",

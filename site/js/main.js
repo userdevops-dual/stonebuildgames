@@ -90,10 +90,8 @@
   const h1 = $('.hero h1');
   if (h1) {
     $$('.line', h1).forEach((line) => {
-      const grad = line.classList.contains('gradient-text');
       const words = line.textContent.trim().split(/\s+/);
-      line.innerHTML = words.map((w) => `<span class="word${grad ? ' gradient-text' : ''}">${w}</span>`).join(' ');
-      line.classList.remove('gradient-text');
+      line.innerHTML = words.map((w) => `<span class="word">${w}</span>`).join(' ');
     });
   }
 
@@ -107,7 +105,7 @@
     gsap.registerPlugin(ScrollTrigger);
     const blur = isDesktop ? { filter: 'blur(8px)' } : {};
     const blurOff = isDesktop ? { filter: 'blur(0px)' } : {};
-    const done = (items) => () => items.forEach((i) => { i.classList.add('is-in'); i.style.filter = ''; });
+    const done = (items) => () => { items.forEach((i) => i.classList.add('is-in')); gsap.set(items, { clearProps: 'transform,opacity,filter,translate,rotate,scale' }); };
 
     // Hero: words then the rest
     const hero = $('.hero');
@@ -120,12 +118,12 @@
         // Text is never fully transparent, so it still counts as the LCP element
         gsap.set(h1, { opacity: 1, y: 0 });
         gsap.set(words, { opacity: 0.15, y: 46, rotateX: -40, transformOrigin: '50% 100%' });
-        gsap.to(words, { opacity: 1, y: 0, rotateX: 0, duration: 1.1, stagger: 0.07, ease: 'power4.out', delay: 0.2,
+        gsap.to(words, { opacity: 1, y: 0, rotateX: 0, duration: 0.8, stagger: 0.05, ease: 'power4.out', delay: 0.05,
           onComplete: () => { h1.classList.add('is-in'); h1.style.cssText = ''; } });
       }
-      if (lead) gsap.fromTo(lead, { opacity: 0.35, y: 18 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.45,
+      if (lead) gsap.fromTo(lead, { opacity: 0.35, y: 18 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.2,
         onComplete: () => { lead.classList.add('is-in'); lead.style.cssText = ''; } });
-      gsap.to(rest, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1, ease: 'power3.out', delay: 0.6, onComplete: done(rest) });
+      gsap.to(rest, { opacity: 1, y: 0, duration: 0.6, stagger: 0.06, ease: 'power3.out', delay: 0.25, onComplete: done(rest) });
       // Parallax on scroll
       if (isDesktop) {
         gsap.to('.hero .container', { y: 140, opacity: 0.15, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });

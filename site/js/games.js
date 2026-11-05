@@ -21,8 +21,8 @@
   function card(g) {
     const [statusLabel, statusCls] = STATUS[g.status] || STATUS['coming-soon'];
     const art = g.cover
-      ? `<img class="art" src="${esc(g.cover)}" alt="${esc(g.title)} cover art" loading="lazy" width="1600" height="1000" style="object-fit:cover">`
-      : `<div class="art art-${esc(g.theme || 'forge')}" aria-hidden="true"><span class="stone s1"></span><span class="stone s2"></span><span class="stone s3"></span><span class="stone s4"></span></div>`;
+      ? `<img class="art art-img" src="${esc(g.cover)}" alt="${esc(g.title)} cover art" loading="lazy" width="1600" height="1000">`
+      : `<div class="art" aria-hidden="true"></div>`;
     const stores = [
       badge(g.playStore, playIcon, 'GET IT ON', 'Google Play'),
       g.appStore || g.platforms?.includes('iOS') ? badge(g.appStore, appleIcon, 'Download on the', 'App Store') : '',
@@ -31,7 +31,7 @@
     return `
       <article class="card game-card${prerendered.length ? '' : ' reveal'}" id="${esc(g.id)}">
         <div class="game-cover">${art}
-          <div class="label"><div><span class="status ${statusCls}">${statusLabel}</span><h3 style="margin-top:10px">${esc(g.title)}</h3><p>${esc(g.tagline)}</p></div></div>
+          <div class="label"><div><span class="status ${statusCls}">${statusLabel}</span><h3>${esc(g.title)}</h3><p>${esc(g.tagline)}</p></div></div>
         </div>
         <div class="body">
           <div class="meta"><span class="tag">${esc(g.genre)}</span>${(g.platforms || []).map((p) => `<span class="tag">${esc(p)}</span>`).join('')}</div>

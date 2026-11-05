@@ -17,9 +17,9 @@ Domain: https://stonebuildgames.com  ·  Email: support@stonebuildgames.com
 - No frameworks, no bundler, no tracking scripts by default.
 
 ## Design system
-- Theme: dark "forge & stone". Background #0A0C10, surface #11151C, text #E8ECF2.
+- Theme: white. Background #FFFFFF, alternate sections #F6F6F7, ink #0A0A0B.
 - Accent: logo orange #FF6A2B (primary), cool steel #7DD3FC (secondary). Gradient only on key moments.
-- Type: Sora (display) + Inter (body), fluid sizes via clamp().
+- Type: Chakra Petch (headings) + Inter (body) + JetBrains Mono (labels), all self-hosted.
 - Layout: 1240px container, side gutters clamp(24px, 6vw, 96px). 8pt spacing scale.
 - Motion: GSAP word-by-word hero reveal, blur/slide section reveals, hero parallax on scroll, 3D low-poly
   "stones" with mouse parallax (desktop only, lazy-loaded), tilt cards, magnetic buttons, pill navbar on scroll,

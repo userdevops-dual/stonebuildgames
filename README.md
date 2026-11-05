@@ -17,12 +17,14 @@ site/                      ← publish this folder
   css/fonts.css + fonts/   Self-hosted Inter and Sora (no Google Fonts request)
   js/main.js               Pill navbar, nav, section dots, reveals, page transitions, contact form
   js/hero3d.js             Three.js hero scene (lazy, desktop only; CSS fallback on phones)
-  js/game.js               Stone Stack mini-game (canvas)
+  js/game.js               Stone Stack isometric mini-game (canvas)
   js/games-data.js         ← EDIT THIS to add games
   js/games.js              Renders game cards + VideoGame structured data
   vendor/                  gsap, ScrollTrigger, three (self-hosted, pinned)
   assets/                  favicon, logo, OG image
   robots.txt  sitemap.xml  llms.txt  site.webmanifest  _headers  .well-known/security.txt
+brand/                     Logo package: SVG, PNG, Google Play icon and feature graphic, zip
+tools/                     build_pages.py (generates the pages), make_brand.py (generates logos and icons)
 PLAN.md                    Design + architecture plan
 stonebuildgames.com-audit/ SEO audit findings and Lighthouse reports (not deployed)
 .claude/launch.json        Local preview (python http.server on :8787)
@@ -96,6 +98,6 @@ If you later want a hosted form, point the form at Formspree or Netlify Forms an
 - Services, process steps, why-us copy: edit `site/index.html` directly (plain HTML).
 - The hero 3D scene: `site/js/hero3d.js` (stone count, colors, speed).
 - Full-screen snapping is on for desktops ≥ 1024px wide and ≥ 720px tall; mobile scrolls normally.
-- The Stone Stack game lives in `site/js/game.js` (block height, speed curve, colors at the top of the file).
-- Pages share the same header and footer markup; when you change it, change it in every page (or ask Claude to re-run the page builder).
+- The Stone Stack game lives in `site/js/game.js` (block size, swing and perfect-drop tolerance at the top of the file).
+- Pages share the same header and footer. Change them in `tools/build_pages.py`, then run `python3 tools/build_pages.py`. Logos and icons come from `python3 tools/make_brand.py`.
 - Everything respects `prefers-reduced-motion`.
