@@ -1,0 +1,17 @@
+# StoneBuild Games — crawler policy
+# Search and answer engines: allowed.
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: Applebot
+User-agent: OAI-SearchBot
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: ChatGPT-User
+User-agent: Claude-User
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: *
+Allow: /
+
+Sitemap: https://stonebuildgames.com/sitemap.xml

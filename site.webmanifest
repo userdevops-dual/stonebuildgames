@@ -1,0 +1,14 @@
+{
+  "name": "StoneBuild Games",
+  "short_name": "StoneBuild",
+  "description": "Game development studio building 3D, 2D and multiplayer games for mobile and PC.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/logo-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
