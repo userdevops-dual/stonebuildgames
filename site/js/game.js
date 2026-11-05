@@ -238,7 +238,7 @@
   for (let i = 0; i < 3; i++) { const t = blocks[blocks.length - 1]; blocks.push({ x0: t.x0, x1: t.x1, z0: t.z0, z1: t.z1, i: blocks.length, shade: blocks.length % 2 ? 2 : 0 }); }
   spawn();
   startPanel.classList.add('is-open'); cta.classList.add('is-open');
-  resize();
+  if (!('ResizeObserver' in window)) resize(); // otherwise the observer sizes the canvas without forcing a layout during load
   requestAnimationFrame((t) => { lastT = t; loop(t); });
 
   // Small hook for automated checks; has no effect on play
