@@ -1,3 +1,5 @@
 .DS_Store
 stonebuildgames.com-audit/lighthouse/
 node_modules/
+hostinger-upload.zip
+__pycache__/

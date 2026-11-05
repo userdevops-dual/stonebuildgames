@@ -57,7 +57,7 @@
     W = Math.max(1, Math.round(r.width)); HT = Math.max(1, Math.round(r.height));
     canvas.width = W * dpr; canvas.height = HT * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     u = Math.min((W * 0.37) / (SIZE * 2 * COS), (HT * 0.28) / (SIZE * 2 * SIN));
-    draw();
+    if (inView) draw();
   }
 
   /* ---------- Game flow ---------- */
@@ -230,7 +230,7 @@
 
   if ('IntersectionObserver' in window) new IntersectionObserver((en) => { inView = en[0].isIntersecting; }, { threshold: 0.1 }).observe(root);
   if ('ResizeObserver' in window) new ResizeObserver(resize).observe(root); else window.addEventListener('resize', resize);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (inView) draw(); });
 
   bestEl.textContent = String(best); syncSound();
   // Idle screen: a short tower with a block drifting across

@@ -9,7 +9,7 @@ if (mount) {
   if (reduceMotion || small || saveData || lowPower) {
     mount.classList.add('is-fallback');
   } else {
-    const start = () => import('three').then((THREE) => init(THREE)).catch(() => mount.classList.add('is-fallback'));
+    const start = () => import('/vendor/three.module.min.js').then((THREE) => init(THREE)).catch(() => mount.classList.add('is-fallback'));
     const idle = () => setTimeout(() => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 1500 }) : start()), 900); // after the intro animation
     if (document.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
   }

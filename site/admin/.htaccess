@@ -1,0 +1,10 @@
+# Admin: not indexed, never cached, can be used only from this site
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://raw.githubusercontent.com; font-src 'self'; connect-src 'self' https://api.github.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+  Header always set X-Robots-Tag "noindex, nofollow"
+  Header always set Cache-Control "no-store"
+  Header always set Referrer-Policy "no-referrer"
+  <FilesMatch ".*">
+    Header set Cache-Control "no-store"
+  </FilesMatch>
+</IfModule>

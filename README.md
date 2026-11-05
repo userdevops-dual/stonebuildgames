@@ -22,7 +22,8 @@ site/                      ← publish this folder
   data/games.json          Games and settings, written by the admin panel
   vendor/                  gsap, ScrollTrigger, three (self-hosted, pinned)
   assets/                  favicon, logo, OG image
-  robots.txt  sitemap.xml  llms.txt  site.webmanifest  _headers  .well-known/security.txt
+  .htaccess                Security, caching and compression (generated)
+  robots.txt  sitemap.xml  llms.txt  site.webmanifest  .well-known/security.txt
 brand/                     Logo package: SVG, PNG, Google Play icon and feature graphic, zip
 tools/                     build_pages.py (generates the pages), make_brand.py (generates logos and icons)
 PLAN.md                    Design + architecture plan
@@ -67,18 +68,28 @@ Use these public URLs in Play Console:
 
 Before you submit, make sure the game's privacy answers in the admin match your Play "Data safety" form.
 
-## Deploy
+## Deploy on Hostinger
 
-The host must run the build, because the admin saves data and the pages are generated from it.
+`site/.htaccess` (generated) sets the security headers, HTTPS, caching and compression. Only the `site/` folder goes on the server, never the rest of this repository.
 
-**Cloudflare Pages:** Create project, Connect to Git, choose this repository. Build command `python3 tools/build_pages.py`, output directory `site`. Add the custom domain `stonebuildgames.com`.
+**Automatic, recommended.** Every push to `main` runs `.github/workflows/deploy.yml`, which builds the site and publishes it to the `deploy` branch.
+1. In Hostinger: Websites, Manage, then Git / GitHub auto-deployment. Connect this repository, branch `deploy`, directory `public_html` (it must be empty the first time).
+2. Turn on auto-deployment. Saving in the admin then goes live by itself.
 
-**Netlify:** New site from Git, choose this repository. `netlify.toml` already holds the settings.
+**Manual.** Run `python3 tools/make_upload_zip.py`, upload `hostinger-upload.zip` to `public_html` in File Manager and extract it. Show hidden files to confirm `.htaccess` is there. With this route, online admin saves do not reach the server until you upload again.
 
-After deploy:
-1. Submit `https://stonebuildgames.com/sitemap.xml` in Google Search Console and Bing Webmaster Tools.
-2. IndexNow: the key file in `site/` is already in place. After launch, ping `https://api.indexnow.org/indexnow?url=https://stonebuildgames.com/&key=<key>` (the key is the file name).
-3. Check the share image at https://stonebuildgames.com/assets/og-image.png.
+**After deploy**
+1. Turn on the free SSL certificate and force HTTPS in Hostinger, and turn on its CDN if your plan has it.
+2. Submit `https://stonebuildgames.com/sitemap.xml` in Google Search Console and Bing Webmaster Tools.
+3. IndexNow: the key file in `site/` is already in place. Ping `https://api.indexnow.org/indexnow?url=https://stonebuildgames.com/&key=<key>` (the key is the file name).
+
+## Security checklist
+
+The site is static: no database, no login server and no secrets on Hostinger. Keep it that way.
+- Turn on two-factor login for GitHub and Hostinger. These two accounts are what really control the site.
+- GitHub token: fine-grained, this repository only, Contents read and write, 90-day expiry. Revoke it at once if a computer is lost.
+- Change the admin password to a long random one: `python3 tools/set_admin_password.py`.
+- For an extra lock, add a server password to the `admin` folder in Hostinger, if your plan offers directory protection.
 
 ## Email: support@stonebuildgames.com
 

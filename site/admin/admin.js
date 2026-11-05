@@ -99,6 +99,16 @@
     const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: A.iter }, key, 256);
     return btoa(String.fromCharCode(...new Uint8Array(bits))) === A.hash;
   }
+  /* Failed attempts slow down guessing in this browser. The token below is what actually protects publishing. */
+  function attempts() { try { return JSON.parse(localStorage.getItem('sb-attempts')) || { n: 0, until: 0 }; } catch (e) { return { n: 0, until: 0 }; } }
+  function saveAttempts(a) { try { localStorage.setItem('sb-attempts', JSON.stringify(a)); } catch (e) { /* storage blocked */ } }
+  /* The GitHub token is only kept in memory, or encrypted with the admin password when remembered. */
+  async function vaultCrypto(salt) { return crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: 600000 }, S.vaultKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']); }
+  const toB64 = (u) => btoa(String.fromCharCode(...new Uint8Array(u))); const fromB64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  async function vaultSave(obj) { const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12)); const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await vaultCrypto(salt), new TextEncoder().encode(JSON.stringify(obj))); localStorage.setItem('sb-vault', JSON.stringify({ salt: toB64(salt), iv: toB64(iv), ct: toB64(ct) })); }
+  async function vaultLoad() { const v = JSON.parse(localStorage.getItem('sb-vault')); const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(v.iv) }, await vaultCrypto(fromB64(v.salt)), fromB64(v.ct)); return JSON.parse(new TextDecoder().decode(pt)); }
+  /* Lock after 20 idle minutes: reloading clears the token and key from memory. */
+  function startIdleLock() { let t; const arm = () => { clearTimeout(t); t = setTimeout(() => { S.dirty = false; location.reload(); }, 20 * 60000); }; ['pointerdown', 'keydown'].forEach((ev) => window.addEventListener(ev, arm, { passive: true })); arm(); }
   function renderGate(error) {
     loginShell(`<form id="gate" autocomplete="on"><h1>Welcome back</h1><p class="sub">Sign in to manage your games.</p>${error ? `<p class="err-msg" role="alert">${esc(error)}</p>` : ''}
       <div class="field"><label for="g-user">Username</label><input id="g-user" name="username" autocomplete="username" required autofocus></div>
@@ -106,32 +116,36 @@
       <button class="btn btn-primary btn-lg">Sign in</button></form>`);
     document.getElementById('gate').addEventListener('submit', async (e) => {
       e.preventDefault(); const btn = e.target.querySelector('button'); btn.disabled = true; btn.textContent = 'Signing in...';
-      let ok = false; try { ok = await checkPassword(document.getElementById('g-user').value.trim(), document.getElementById('g-pass').value); } catch (err) { return renderGate('Sign in needs a secure connection (https).'); }
-      if (!ok) return renderGate('Wrong username or password.');
-      sessionStorage.setItem('sb-auth', '1'); boot();
+      const lock = attempts(); if (lock.until > Date.now()) return renderGate(`Too many attempts. Try again in ${Math.ceil((lock.until - Date.now()) / 60000)} minutes.`);
+      const user = document.getElementById('g-user').value.trim(), pass = document.getElementById('g-pass').value;
+      let ok = false; try { ok = await checkPassword(user, pass); } catch (err) { return renderGate('Sign in needs a secure connection (https).'); }
+      if (!ok) { lock.n += 1; if (lock.n >= 5) { lock.until = Date.now() + 15 * 60000; lock.n = 0; } saveAttempts(lock); return renderGate('Wrong username or password.'); }
+      saveAttempts({ n: 0, until: 0 });
+      S.vaultKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(`${user}\n${pass}`), 'PBKDF2', false, ['deriveKey']);
+      startIdleLock(); boot();
     });
   }
   function renderLogin(error) {
-    const saved = JSON.parse(localStorage.getItem('sb-admin') || sessionStorage.getItem('sb-admin') || '{}');
+    const saved = S.gh || {};
     loginShell(`<form id="login"><h1>Connect GitHub</h1><p class="sub">One step, once per browser. Saving publishes through your repository, so this needs an access token.</p>
       ${error ? `<p class="err-msg" role="alert">${esc(error)}</p>` : ''}
       <div class="a-grid2"><div class="field"><label for="l-repo">Repository</label><input id="l-repo" value="${esc(saved.owner ? saved.owner + '/' + saved.repo : 'userdevops-dual/stonebuildgames')}" required></div>
       <div class="field"><label for="l-branch">Branch</label><input id="l-branch" value="${esc(saved.branch || 'main')}" required></div></div>
-      <div class="field"><label for="l-token">Access token</label><input id="l-token" type="password" autocomplete="off" value="${esc(saved.token || '')}" required></div>
-      <ol><li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub fine-grained tokens</a>.</li><li>Select only this repository.</li><li>Give it <b>Contents: Read and write</b>, then create it.</li></ol>
-      <label class="switch" style="margin-top:14px"><input type="checkbox" id="l-rem" ${localStorage.getItem('sb-admin') ? 'checked' : ''}>Remember on this computer</label>
+      <div class="field"><label for="l-token">Access token</label><input id="l-token" type="password" autocomplete="off" required></div>
+      <ol><li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub fine-grained tokens</a>.</li><li>Select only this repository.</li><li>Give it <b>Contents: Read and write</b> and a 90-day expiry, then create it.</li></ol>
+      <label class="switch" style="margin-top:14px"><input type="checkbox" id="l-rem" ${localStorage.getItem('sb-vault') ? 'checked' : ''}>Remember on this computer, encrypted with your password</label>
       <button class="btn btn-primary btn-lg">Connect</button>
-      <p class="hint" style="margin-top:12px">The token stays in this browser and is only sent to GitHub.</p></form>`);
+      <p class="hint" style="margin-top:12px">The token is only sent to GitHub, and it is never stored unencrypted.</p></form>`);
     document.getElementById('login').addEventListener('submit', async (e) => {
       e.preventDefault();
       const [owner, repo] = document.getElementById('l-repo').value.trim().split('/');
       S.gh = { owner, repo, branch: document.getElementById('l-branch').value.trim(), token: document.getElementById('l-token').value.trim() };
       const btn = e.target.querySelector('button'); btn.disabled = true; btn.textContent = 'Connecting...';
-      try { S.mode = 'github'; await loadData(); const v = JSON.stringify(S.gh); localStorage.removeItem('sb-admin'); sessionStorage.removeItem('sb-admin'); (document.getElementById('l-rem').checked ? localStorage : sessionStorage).setItem('sb-admin', v); render(); }
+      try { S.mode = 'github'; await loadData(); if (document.getElementById('l-rem').checked) await vaultSave(S.gh); else localStorage.removeItem('sb-vault'); render(); }
       catch (err) { S.mode = null; renderLogin(err.message); }
     });
   }
-  function signOut() { sessionStorage.removeItem('sb-auth'); sessionStorage.removeItem('sb-admin'); S.gh = null; S.mode = null; S.view = 'list'; renderGate(); }
+  function signOut() { S.dirty = false; location.reload(); }
 
   /* ---------- shell ---------- */
   function shell(inner) {
@@ -331,12 +345,14 @@
   /* ---------- start ---------- */
   async function boot() {
     try { const r = await fetch('/__admin/ping', { cache: 'no-store' }); if (r.ok) { S.mode = 'local'; await loadData(); return render(); } } catch (e) { /* not running locally */ }
-    const saved = localStorage.getItem('sb-admin') || sessionStorage.getItem('sb-admin');
-    if (saved) { try { S.gh = JSON.parse(saved); S.mode = 'github'; await loadData(); return render(); } catch (e) { S.mode = null; return renderLogin(e.message); } }
+    if (localStorage.getItem('sb-vault')) {
+      try { S.gh = await vaultLoad(); S.mode = 'github'; await loadData(); return render(); }
+      catch (e) { S.mode = null; if (e.name === 'OperationError') { localStorage.removeItem('sb-vault'); S.gh = null; return renderLogin(); } return renderLogin(e.message); }
+    }
     renderLogin();
   }
   (function start() {
-    if (sessionStorage.getItem('sb-auth') !== '1') return renderGate();
-    boot();
+    localStorage.removeItem('sb-admin'); sessionStorage.removeItem('sb-admin'); sessionStorage.removeItem('sb-auth'); // older plain storage
+    renderGate();
   })();
 })();

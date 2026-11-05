@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Change the admin login. Run: python3 tools/set_admin_password.py   Only a salted hash is stored, in site/admin/auth.js."""
 import base64, getpass, hashlib, json, os, secrets
-ITER = 200000
+ITER = 600000
 user = os.environ.get('SB_ADMIN_USER') or input('Username: ').strip()
 pw = os.environ.get('SB_ADMIN_PASS') or getpass.getpass('Password: ')
 salt = secrets.token_bytes(16)
