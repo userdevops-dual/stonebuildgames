@@ -47,7 +47,7 @@ function init(THREE) {
     mesh.scale.setScalar(rand(0.28, 0.85) * (isWire ? 1.3 : 1));
     // Keep clear of the headline: most stones sit on the right, the rest in the top and bottom bands
     const right = i % 4 !== 0;
-    mesh.position.set(right ? rand(1.5, 11) : rand(-10, 0), right ? rand(-5.5, 5.5) : (i % 8 === 0 ? rand(4.6, 6) : rand(-6, -4.8)), rand(-8, 0));
+    mesh.position.set(right ? rand(2.5, 11) : rand(-10, 0), right ? rand(-4.6, 4.2) : -rand(5.6, 6.6), rand(-8, 0));
     mesh.rotation.set(rand(0, Math.PI), rand(0, Math.PI), rand(0, Math.PI));
     mesh.userData = { rx: rand(-0.25, 0.25), ry: rand(-0.3, 0.3), fy: rand(0.2, 0.6), fa: rand(0.15, 0.45), ph: rand(0, Math.PI * 2), y0: mesh.position.y };
     group.add(mesh); stones.push(mesh);
