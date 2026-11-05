@@ -33,7 +33,7 @@ stonebuildgames.com-audit/ SEO audit findings and Lighthouse reports (not deploy
 ## Run locally
 
 ```bash
-python3 -m http.server 8787 -d site
+python3 tools/serve.py
 ```
 Open http://localhost:8787
 
@@ -97,7 +97,7 @@ If you later want a hosted form, point the form at Formspree or Netlify Forms an
 - Colors, fonts, spacing: `:root` tokens at the top of `site/css/styles.css`.
 - Services, process steps, why-us copy: edit `site/index.html` directly (plain HTML).
 - The hero 3D scene: `site/js/hero3d.js` (stone count, colors, speed).
-- Full-screen snapping is on for desktops ≥ 1024px wide and ≥ 720px tall; mobile scrolls normally.
+- Home sections are one screen tall on desktop and scroll freely, with no snapping.
 - The Stone Stack game lives in `site/js/game.js` (block size, swing and perfect-drop tolerance at the top of the file).
 - Pages share the same header and footer. Change them in `tools/build_pages.py`, then run `python3 tools/build_pages.py`. Logos and icons come from `python3 tools/make_brand.py`.
 - Everything respects `prefers-reduced-motion`.

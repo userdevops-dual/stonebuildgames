@@ -224,8 +224,30 @@ def page_hero(crumb, eyebrow, h1, lead, meta=''):
       </div>
     </section>
 '''
+# (kind, size, small-screen size, side, offset from side, top, duration, delay, hide on phones)
+ROCK_SETS=[
+ [(1,240,110,'r','-140px','10%',19,0,0),(4,64,44,'l','14px','30%',14,-4,1),(5,150,80,'l','-92px','68%',23,-9,1)],
+ [(2,260,120,'l','-165px','22%',21,-3,0),(5,110,70,'r','-46px','14%',17,-6,1),(3,170,84,'r','-108px','68%',16,-2,0)],
+ [(3,220,110,'r','-135px','52%',22,-5,0),(4,60,44,'l','16px','18%',13,-1,1),(1,180,90,'l','-118px','70%',18,-7,1)],
+ [(5,160,84,'r','-92px','16%',20,-2,1),(2,200,100,'l','-128px','46%',17,-8,0),(4,70,48,'r','16px','80%',15,-3,1)],
+]
+rock_i=[0]
+def rock_html(path=''):
+    # Long legal text stays clean: rocks only in its header
+    st=ROCK_SETS[rock_i[0]%len(ROCK_SETS)]; rock_i[0]+=1; out=[]
+    for k,sz,sm,side,off,top,t,d,h in st:
+        pos=f'--x:{off}' if side=='l' else f'--xr:{off}'
+        out.append(f'<div class="rock k{k}{" hide-m" if h else ""}" style="--s:{sz}px;--sm:{sm}px;{pos};--y:{top};--t:{t}s;--d:{d}s"><i></i></div>')
+    return '<div class="rocks" aria-hidden="true">'+''.join(out)+'</div>'
+def add_rocks(html):
+    rock_i[0]=0
+    html=re.sub(r'<div class="rocks" aria-hidden="true">.*?</div></div>\s*(?=<div class="|<ol|\s)', '', html) if False else html
+    html=re.sub(r'<div class="rocks" aria-hidden="true">(?:<div class="rock[^>]*><i></i></div>)*</div>', '', html)
+    pat=r'(<section class="(?:screen(?! hero)|page-hero|page-section)[^"]*"[^>]*>)'
+    return re.sub(pat, lambda m: m.group(1)+rock_html(), html)
 def write(path_file, html):
     os.makedirs(os.path.dirname(path_file) or '.', exist_ok=True)
+    if path_file.endswith('.html'): html=add_rocks(html)
     open(path_file,'w').write(html)
 def dots(items):
     out=[]
