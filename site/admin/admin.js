@@ -12,14 +12,16 @@
     up: '<path d="m6 15 6-6 6 6"/>', down: '<path d="m6 9 6 6 6-6"/>',
     edit: '<path d="m3 21 4-1L20 7l-3-3L4 17zM14 6l3 3"/>', copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>',
     view: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', del: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
-    site: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'
+    site: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+    check: '<path d="m5 12 5 5L20 7"/>', file: '<path d="M6 2h9l4 4v16H6z"/><path d="M15 2v4h4"/>', home: '<path d="m3 11 9-8 9 8v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>', signout: '<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H3"/>'
   };
   const ic = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
   const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const SDKS = [['admob', 'Google AdMob'], ['unityads', 'Unity Ads'], ['firebase', 'Firebase'], ['unityanalytics', 'Unity Analytics'], ['gpgs', 'Play Games Services'], ['gamecenter', 'Game Center']];
   const STORES = [['play', 'Google Play', 'https://play.google.com/store/apps/details?id=...', /^https:\/\/play\.google\.com\//], ['appStore', 'App Store', 'https://apps.apple.com/app/...', /^https:\/\/apps\.apple\.com\//], ['steam', 'Steam', 'https://store.steampowered.com/app/...', /^https:\/\/store\.steampowered\.com\//]];
 
-  const S = { mode: null, gh: null, data: { settings: {}, games: [] }, view: 'list', edit: null, isNew: false, pending: {}, removed: [], previews: {}, q: '', dirty: false };
+  const MARK = '<svg viewBox="10 7 180 180" aria-hidden="true"><g stroke="#0a0a0b" stroke-width="3" stroke-linejoin="round"><polygon points="100,20 169.28,60 134.64,80 100,60 65.36,80 30.72,60" fill="#FF6A2B"/><polygon points="169.28,60 169.28,140 100,180 100,140 134.64,120 134.64,80" fill="#8B8B95"/><polygon points="30.72,60 65.36,80 65.36,120 100,140 100,180 30.72,140" fill="#FFFFFF"/><polygon points="100,100 134.64,120 100,140 65.36,120" fill="#9E411A"/><polygon points="100,60 100,100 65.36,120 65.36,80" fill="#55555E"/><polygon points="100,60 134.64,80 134.64,120 100,100" fill="#D4D4D8"/><polygon points="172,14 185.86,22 172,30 158.14,22" fill="#FF6A2B"/><polygon points="172,30 185.86,22 185.86,38 172,46" fill="#8B8B95"/><polygon points="158.14,22 172,30 172,46 158.14,38" fill="#FFFFFF"/></g></svg>';
+  const S = { tab: 'basics', mode: null, gh: null, data: { settings: {}, games: [] }, view: 'list', edit: null, isNew: false, pending: {}, removed: [], previews: {}, q: '', dirty: false };
 
   /* ---------- helpers ---------- */
   function toast(msg, bad) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'on' + (bad ? ' bad' : ''); clearTimeout(toast.t); toast.t = setTimeout(() => { t.className = ''; }, bad ? 6000 : 3200); }
@@ -86,43 +88,61 @@
     S.pending['site' + pub] = res.base64; S.previews[pub] = res.dataUrl; return pub;
   }
 
-  /* ---------- connect screen ---------- */
+  /* ---------- sign in ---------- */
+  function loginShell(inner) {
+    app.innerHTML = `<div class="a-login"><aside class="a-login-art"><img src="/assets/logo-dark.svg" alt="StoneBuild Games"><div class="a-login-mark">${MARK}</div><div><h2>Your games,<br><span>one place.</span></h2><p>Post games, manage store links and keep every privacy page up to date.</p></div></aside><div class="a-login-form">${inner}</div></div>`;
+  }
+  async function checkPassword(user, pass) {
+    const A = window.SB_AUTH; const enc = new TextEncoder();
+    const key = await crypto.subtle.importKey('raw', enc.encode(`${user}\n${pass}`), 'PBKDF2', false, ['deriveBits']);
+    const salt = Uint8Array.from(atob(A.salt), (c) => c.charCodeAt(0));
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: A.iter }, key, 256);
+    return btoa(String.fromCharCode(...new Uint8Array(bits))) === A.hash;
+  }
+  function renderGate(error) {
+    loginShell(`<form id="gate" autocomplete="on"><h1>Welcome back</h1><p class="sub">Sign in to manage your games.</p>${error ? `<p class="err-msg" role="alert">${esc(error)}</p>` : ''}
+      <div class="field"><label for="g-user">Username</label><input id="g-user" name="username" autocomplete="username" required autofocus></div>
+      <div class="field"><label for="g-pass">Password</label><input id="g-pass" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn btn-primary btn-lg">Sign in</button></form>`);
+    document.getElementById('gate').addEventListener('submit', async (e) => {
+      e.preventDefault(); const btn = e.target.querySelector('button'); btn.disabled = true; btn.textContent = 'Signing in...';
+      let ok = false; try { ok = await checkPassword(document.getElementById('g-user').value.trim(), document.getElementById('g-pass').value); } catch (err) { return renderGate('Sign in needs a secure connection (https).'); }
+      if (!ok) return renderGate('Wrong username or password.');
+      sessionStorage.setItem('sb-auth', '1'); boot();
+    });
+  }
   function renderLogin(error) {
     const saved = JSON.parse(localStorage.getItem('sb-admin') || sessionStorage.getItem('sb-admin') || '{}');
-    app.innerHTML = `<div class="a-login"><form class="a-panel" id="login">
-      <img src="/assets/logo.svg" alt="StoneBuild Games">
-      <h1>Admin sign in</h1>
-      <p class="hint" style="margin-top:6px">Games are saved to your GitHub repository, and the site rebuilds itself. Sign in with a GitHub access token.</p>
-      ${error ? `<p class="err-msg" style="margin-top:10px">${esc(error)}</p>` : ''}
-      <div class="field"><label for="l-repo">Repository</label><input id="l-repo" value="${esc(saved.owner ? saved.owner + '/' + saved.repo : 'userdevops-dual/stonebuildgames')}" required></div>
-      <div class="field"><label for="l-branch">Branch</label><input id="l-branch" value="${esc(saved.branch || 'main')}" required></div>
+    loginShell(`<form id="login"><h1>Connect GitHub</h1><p class="sub">One step, once per browser. Saving publishes through your repository, so this needs an access token.</p>
+      ${error ? `<p class="err-msg" role="alert">${esc(error)}</p>` : ''}
+      <div class="a-grid2"><div class="field"><label for="l-repo">Repository</label><input id="l-repo" value="${esc(saved.owner ? saved.owner + '/' + saved.repo : 'userdevops-dual/stonebuildgames')}" required></div>
+      <div class="field"><label for="l-branch">Branch</label><input id="l-branch" value="${esc(saved.branch || 'main')}" required></div></div>
       <div class="field"><label for="l-token">Access token</label><input id="l-token" type="password" autocomplete="off" value="${esc(saved.token || '')}" required></div>
       <ol><li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub fine-grained tokens</a>.</li><li>Select only this repository.</li><li>Give it <b>Contents: Read and write</b>, then create it.</li></ol>
-      <label class="switch" style="margin:14px 0"><input type="checkbox" id="l-rem" ${localStorage.getItem('sb-admin') ? 'checked' : ''}>Remember on this computer</label>
-      <button class="btn btn-primary btn-lg" style="width:100%">Sign in</button>
-      <p class="hint" style="margin-top:12px">The token stays in this browser and is only sent to GitHub.</p>
-    </form></div>`;
+      <label class="switch" style="margin-top:14px"><input type="checkbox" id="l-rem" ${localStorage.getItem('sb-admin') ? 'checked' : ''}>Remember on this computer</label>
+      <button class="btn btn-primary btn-lg">Connect</button>
+      <p class="hint" style="margin-top:12px">The token stays in this browser and is only sent to GitHub.</p></form>`);
     document.getElementById('login').addEventListener('submit', async (e) => {
       e.preventDefault();
       const [owner, repo] = document.getElementById('l-repo').value.trim().split('/');
       S.gh = { owner, repo, branch: document.getElementById('l-branch').value.trim(), token: document.getElementById('l-token').value.trim() };
-      const btn = e.target.querySelector('button'); btn.disabled = true; btn.textContent = 'Signing in...';
+      const btn = e.target.querySelector('button'); btn.disabled = true; btn.textContent = 'Connecting...';
       try { S.mode = 'github'; await loadData(); const v = JSON.stringify(S.gh); localStorage.removeItem('sb-admin'); sessionStorage.removeItem('sb-admin'); (document.getElementById('l-rem').checked ? localStorage : sessionStorage).setItem('sb-admin', v); render(); }
       catch (err) { S.mode = null; renderLogin(err.message); }
     });
   }
-  function signOut() { localStorage.removeItem('sb-admin'); sessionStorage.removeItem('sb-admin'); S.gh = null; S.mode = null; renderLogin(); }
+  function signOut() { sessionStorage.removeItem('sb-auth'); sessionStorage.removeItem('sb-admin'); S.gh = null; S.mode = null; S.view = 'list'; renderGate(); }
 
   /* ---------- shell ---------- */
   function shell(inner) {
     app.innerHTML = `<div class="a-shell"><aside class="a-side">
-      <a class="a-logo" href="/" target="_blank" rel="noopener"><img src="/assets/logo.svg" alt="StoneBuild Games"></a>
+      <a class="a-logo" href="/" target="_blank" rel="noopener"><img src="/assets/logo-dark.svg" alt="StoneBuild Games"></a>
       <nav class="a-nav" aria-label="Admin">
         <button data-nav="list" class="${S.view === 'list' || S.view === 'edit' ? 'on' : ''}">${ic('games')}Games</button>
         <button data-nav="settings" class="${S.view === 'settings' ? 'on' : ''}">${ic('set')}Settings</button>
         <button data-nav="site">${ic('site')}View site</button>
       </nav>
-      <div class="a-mode">${S.mode === 'local' ? '<span>Local mode<b>Saving to this computer</b></span><span>Push with git to publish.</span>' : `<span>Connected to<b>${esc(S.gh.owner)}/${esc(S.gh.repo)}</b></span><button class="a-link" data-signout>Sign out</button>`}</div>
+      <div class="a-mode"><span>${S.mode === 'local' ? 'Local mode<b>Saving to this computer</b>' : `Connected to<b>${esc(S.gh.owner)}/${esc(S.gh.repo)}</b>`}</span><button class="a-signout" data-signout>Sign out</button></div>
     </aside><main class="a-main">${inner}</main></div>`;
     app.querySelectorAll('[data-nav]').forEach((b) => b.addEventListener('click', async () => {
       if (b.dataset.nav === 'site') return window.open('/', '_blank', 'noopener');
@@ -153,19 +173,20 @@
           <button class="icon-btn" data-act="edit" title="Edit" aria-label="Edit ${esc(g.name)}">${ic('edit')}</button>
           <button class="icon-btn" data-act="dup" title="Duplicate" aria-label="Duplicate ${esc(g.name)}">${ic('copy')}</button>
           ${g.status === 'published' ? `<a class="icon-btn" href="/games/${esc(g.id)}/" target="_blank" rel="noopener" title="View page" aria-label="View ${esc(g.name)} page">${ic('view')}</a>` : ''}
-          <button class="icon-btn" data-act="del" title="Delete" aria-label="Delete ${esc(g.name)}">${ic('del')}</button>
+          <button class="icon-btn danger" data-act="del" title="Delete" aria-label="Delete ${esc(g.name)}">${ic('del')}</button>
         </div></div>`;
     }).join('');
-    shell(`<div class="a-top"><h1>Games</h1><div class="a-actions"><input class="a-search" id="search" type="search" placeholder="Search games" aria-label="Search games" value="${esc(S.q)}"><button class="btn btn-primary" id="new">Add game</button></div></div>
+    shell(`<div class="a-top"><div><h1>Games</h1><p>Post, edit and order the games on your website.</p></div><div class="a-actions"><input class="a-search" id="search" type="search" placeholder="Search games" aria-label="Search games" value="${esc(S.q)}"><button class="btn btn-primary" id="new">Add game</button></div></div>
       <div class="a-stats">
-        <div class="a-stat"><b>${all.length}</b><span>Total games</span></div>
-        <div class="a-stat"><b>${pub}</b><span>Published</span></div>
-        <div class="a-stat"><b>${all.length - pub}</b><span>Drafts</span></div>
-        <div class="a-stat"><b>${pub}/${NEED}</b><span>${left ? `${left} more to show games on the home page` : 'Showing on the home page'}</span><div class="a-bar"><i style="width:${Math.min(100, pub / NEED * 100)}%"></i></div></div>
+        <div class="a-stat"><i>${ic('games')}</i><div><b>${all.length}</b><span>Total games</span></div></div>
+        <div class="a-stat"><i>${ic('check')}</i><div><b>${pub}</b><span>Published</span></div></div>
+        <div class="a-stat"><i>${ic('file')}</i><div><b>${all.length - pub}</b><span>Drafts</span></div></div>
+        <div class="a-stat hot"><i>${ic('home')}</i><div><b>${Math.min(pub, NEED)}/${NEED}</b><span>${left ? `${left} more to show on the home page` : 'Showing on the home page'}</span><div class="a-bar"><i style="width:${Math.min(100, pub / NEED * 100)}%"></i></div></div></div>
       </div>
-      <div class="a-list">${rows || `<div class="a-empty"><p>${all.length ? 'No game matches your search.' : 'No games yet. Add your first game.'}</p></div>`}</div>
-      ${all.length > 1 ? '<p class="hint" style="margin-top:10px">The first four published games appear on the home page, in this order.</p>' : ''}`);
+      <div class="a-list">${rows ? `<div class="a-head"><span>Game</span><span>Status</span><span>Rating</span><span>Stores</span><span></span></div>${rows}` : (all.length ? '<div class="a-empty"><p>No game matches your search.</p></div>' : `<div class="a-empty"><div style="width:84px">${MARK}</div><h2>No games yet</h2><p>Add your first game. It stays a draft until you publish it.</p><button class="btn btn-primary" id="new2">Add your first game</button></div>`)}</div>
+      ${all.length > 1 ? '<p class="hint" style="margin-top:10px">The first six published games appear on the home page, in this order.</p>' : ''}`);
     document.getElementById('new').addEventListener('click', () => openEdit(null));
+    const n2 = document.getElementById('new2'); if (n2) n2.addEventListener('click', () => openEdit(null));
     const se = document.getElementById('search'); se.addEventListener('input', () => { S.q = se.value; renderList(); const n = document.getElementById('search'); n.focus(); n.setSelectionRange(n.value.length, n.value.length); });
     app.querySelectorAll('.a-row').forEach((row) => {
       const id = row.dataset.id, g = all.find((x) => x.id === id);
@@ -184,22 +205,26 @@
   function renderSettings() {
     const s = S.data.settings;
     const f = (id, label, val, hint, type) => `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type || 'text'}" value="${esc(val)}">${hint ? `<small>${hint}</small>` : ''}</div>`;
-    shell(`<div class="a-top"><h1>Settings</h1><button class="btn btn-primary" id="save">Save settings</button></div>
+    const soc = s.social || {};
+    const socials = [['instagram', 'Instagram'], ['x', 'X'], ['reddit', 'Reddit'], ['tiktok', 'TikTok'], ['linkedin', 'LinkedIn'], ['youtube', 'YouTube']].map(([k, l]) => f('so-' + k, l, soc[k], '', 'url')).join('');
+    shell(`<div class="a-top"><div><h1>Settings</h1><p>Details used across the whole website.</p></div><button class="btn btn-primary" id="save">Save settings</button></div>
       <div class="a-panel"><h2>Developer details</h2><p class="hint">Shown on game pages and in every privacy policy. Google requires these to match your store listing.</p>
         <div class="a-grid2">${f('s-dev', 'Developer name', s.developerName, 'Exactly as on Google Play')}${f('s-legal', 'Legal name', s.legalName, 'Your company or full legal name')}${f('s-country', 'Country', s.country)}${f('s-mail', 'Support email', s.supportEmail, '', 'email')}</div></div>
+      <div class="a-panel"><h2>Social links</h2><p class="hint">Each link you fill in appears as an icon in the website footer. Leave a field empty to hide its icon.</p><div class="a-grid2">${socials}</div></div>
       <div class="a-panel"><h2>Home page store buttons</h2><p class="hint">Your developer pages. While a field is empty, its button says "Coming to" and opens the games page.</p>
-        ${f('s-play', 'Google Play developer page', s.playDeveloperUrl, 'https://play.google.com/store/apps/dev?id=...', 'url')}${f('s-app', 'App Store developer page', s.appStoreDeveloperUrl, 'https://apps.apple.com/developer/...', 'url')}</div>`);
+        <div class="a-grid2">${f('s-play', 'Google Play developer page', s.playDeveloperUrl, 'https://play.google.com/store/apps/dev?id=...', 'url')}${f('s-app', 'App Store developer page', s.appStoreDeveloperUrl, 'https://apps.apple.com/developer/...', 'url')}</div></div>`);
     document.getElementById('save').addEventListener('click', async (e) => {
       const urls = ['s-play', 's-app'].map((i) => document.getElementById(i).value.trim());
-      if (urls.some((u) => u && !/^https:\/\//.test(u))) return toast('Links must start with https://', true);
-      Object.assign(s, { developerName: document.getElementById('s-dev').value.trim(), legalName: document.getElementById('s-legal').value.trim(), country: document.getElementById('s-country').value.trim(), supportEmail: document.getElementById('s-mail').value.trim(), playDeveloperUrl: urls[0], appStoreDeveloperUrl: urls[1] });
+      const social = {}; ['instagram', 'x', 'reddit', 'tiktok', 'linkedin', 'youtube'].forEach((k) => { social[k] = document.getElementById('so-' + k).value.trim(); });
+      if ([...urls, ...Object.values(social)].some((u) => u && !/^https:\/\//.test(u))) return toast('Links must start with https://', true);
+      Object.assign(s, { developerName: document.getElementById('s-dev').value.trim(), legalName: document.getElementById('s-legal').value.trim(), country: document.getElementById('s-country').value.trim(), supportEmail: document.getElementById('s-mail').value.trim(), playDeveloperUrl: urls[0], appStoreDeveloperUrl: urls[1], social });
       e.target.disabled = true; await saveAll('update settings'); e.target.disabled = false;
     });
   }
 
   /* ---------- editor ---------- */
   function blank() { return { id: '', name: '', tagline: '', description: '', features: [], genre: '', platforms: ['Android'], status: 'draft', released: '', updated: new Date().toISOString().slice(0, 10), version: '', size: '', ageRating: '', rating: '', ratingCount: '', downloads: '', cover: '', icon: '', screenshots: [], trailer: '', playOn: false, playUrl: '', appStoreOn: false, appStoreUrl: '', steamOn: false, steamUrl: '', ads: false, iap: false, accounts: false, children: false, sdks: [] }; }
-  function openEdit(g) { S.isNew = !g; S.edit = g ? { ...blank(), ...JSON.parse(JSON.stringify(g)) } : blank(); S.editOrig = g; S.removed = []; S.pending = {}; S.dirty = false; S.view = 'edit'; render(); window.scrollTo(0, 0); }
+  function openEdit(g) { S.isNew = !g; S.edit = g ? { ...blank(), ...JSON.parse(JSON.stringify(g)) } : blank(); S.editOrig = g; S.removed = []; S.pending = {}; S.dirty = false; S.tab = 'basics'; S.view = 'edit'; render(); window.scrollTo(0, 0); }
   function publishChecks(g) { return [['Name', !!g.name.trim()], ['Short tagline', !!g.tagline.trim()], ['Description', g.description.trim().length >= 40], ['Card image', !!g.cover]]; }
   function storeProblem(g) { for (const [k, label, , rx] of STORES) { if (g[k + 'On']) { const u = (g[k + 'Url'] || '').trim(); if (!u) return `${label} is on, so add its link or switch it off.`; if (!rx.test(u)) return `The ${label} link does not look right. It should start with ${String(rx.source).replace(/\\/g, '').replace('^', '')}`; } } if (g.trailer && !/^https:\/\//.test(g.trailer)) return 'The trailer link must start with https://'; const r = parseFloat(g.rating); if (g.rating !== '' && (isNaN(r) || r < 0 || r > 5)) return 'Rating must be between 0 and 5.'; return ''; }
   function renderEdit() {
@@ -209,37 +234,38 @@
     const sw = (k, l) => `<label class="switch"><input type="checkbox" data-c="${k}" ${g[k] ? 'checked' : ''}>${l}</label>`;
     const shots = (g.screenshots || []).map((p, i) => `<div class="a-shot"><img src="${esc(imgSrc(p))}" data-path="${esc(p)}" alt="Screenshot ${i + 1}"><div class="bar"><button type="button" data-shot="left" data-i="${i}" aria-label="Move left">←</button><button type="button" data-shot="del" data-i="${i}" aria-label="Remove screenshot">✕</button><button type="button" data-shot="right" data-i="${i}" aria-label="Move right">→</button></div></div>`).join('');
     const legal = g.id ? ['privacy', 'terms', 'support', 'delete-data'].map((k) => `<div class="a-url"><span>${{ privacy: 'Privacy policy', terms: 'Terms', support: 'Support', 'delete-data': 'Delete data' }[k]}</span><code><span>${publicBase}/games/${esc(g.id)}/${k}/</span><button type="button" data-copy="${publicBase}/games/${esc(g.id)}/${k}/">Copy</button></code></div>`).join('') : '<p class="hint">Links appear after the first save.</p>';
-    shell(`<div class="a-top"><div><button class="a-link" id="back">← All games</button><h1 style="margin-top:6px">${S.isNew ? 'Add game' : esc(S.editOrig.name)}</h1></div>
-        <div class="a-actions"><button class="btn btn-ghost" id="draft">Save as draft</button><button class="btn btn-primary" id="publish">${g.status === 'published' ? 'Save and publish' : 'Publish'}</button></div></div>
+    const tabs = [['basics', 'Basics'], ['images', 'Images'], ['stores', 'Stores'], ['stats', 'Rating and downloads'], ['privacy', 'Privacy']];
+    const pane = (k, html) => `<div data-pane="${k}" ${S.tab === k ? '' : 'hidden'}>${html}</div>`;
+    shell(`<div class="a-bar-top"><div><button class="a-link" id="back">← All games</button><h1>${S.isNew ? 'Add game' : esc(S.editOrig.name)} <span class="a-pill ${g.status === 'published' ? 'pub' : ''}">${g.status === 'published' ? 'Published' : 'Draft'}</span></h1></div>
+        <div class="a-actions"><span class="a-dirty" id="dirty" ${S.dirty ? '' : 'hidden'}>Unsaved changes</span><button class="btn btn-ghost" id="draft">Save as draft</button><button class="btn btn-primary" id="publish">${g.status === 'published' ? 'Save and publish' : 'Publish'}</button></div></div>
       <div class="a-edit"><div>
-        <div class="a-panel"><h2>Basics</h2>
+        <div class="a-tabs" role="tablist">${tabs.map(([k, l]) => `<button type="button" role="tab" data-tab="${k}" aria-selected="${S.tab === k}" class="${S.tab === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+        ${pane('basics', `<div class="a-panel"><h2>Game details</h2>
           ${fld('name', 'Game name', '', 'required maxlength="60"')}
           ${fld('tagline', 'Short tagline', 'One line under the name', 'maxlength="110"')}
           <div class="field"><label for="f-description">Description</label><textarea id="f-description" data-k="description" rows="7">${esc(g.description)}</textarea><small>Leave a blank line between paragraphs.</small></div>
           <div class="field"><label for="f-features">Features</label><textarea id="f-features" rows="4" placeholder="One feature on each line">${esc((g.features || []).join('\n'))}</textarea></div>
+        </div><div class="a-panel"><h2>Facts</h2>
           <div class="a-grid3">${fld('genre', 'Genre', '', 'placeholder="Puzzle"')}${fld('version', 'Version', '', 'placeholder="1.0.0"')}${fld('size', 'Size', '', 'placeholder="85 MB"')}${fld('ageRating', 'Age rating', '', 'placeholder="Everyone"')}${fld('released', 'Release date', '', 'type="date"')}${fld('updated', 'Last updated', '', 'type="date"')}</div>
-          <div class="a-label" style="margin-top:14px">Platforms</div><div class="a-checks" style="margin-top:0;grid-template-columns:repeat(4,auto);justify-content:start">${['Android', 'iOS', 'PC', 'Web'].map((p) => `<label class="switch"><input type="checkbox" data-p="${p}" ${(g.platforms || []).includes(p) ? 'checked' : ''}>${p}</label>`).join('')}</div>
-        </div>
-        <div class="a-panel"><h2>Images</h2><p class="hint">Images are resized for you. The card image is cropped to a 3:4 portrait.</p>
+          <div class="a-label" style="margin-top:16px">Platforms</div><div class="a-checks" style="margin-top:0;grid-template-columns:repeat(4,auto);justify-content:start">${['Android', 'iOS', 'PC', 'Web'].map((p) => `<label class="switch"><input type="checkbox" data-p="${p}" ${(g.platforms || []).includes(p) ? 'checked' : ''}>${p}</label>`).join('')}</div>
+        </div>`)}
+        ${pane('images', `<div class="a-panel"><h2>Images</h2><p class="hint">Click a box or drop a file on it. Images are resized for you, and the card image is cropped to a wide horizontal shape (12:5).</p>
           <div class="a-media">
-            <div><div class="a-label">Card image</div><label class="drop cover">${g.cover ? `<img src="${esc(imgSrc(g.cover))}" data-path="${esc(g.cover)}" alt="Card image">` : '<span>Upload 3:4 image</span>'}<input type="file" accept="image/*" data-img="cover" aria-label="Upload card image"></label></div>
+            <div><div class="a-label">Card image</div><label class="drop cover">${g.cover ? `<img src="${esc(imgSrc(g.cover))}" data-path="${esc(g.cover)}" alt="Card image">` : '<span>Upload wide image</span>'}<input type="file" accept="image/*" data-img="cover" aria-label="Upload card image"></label></div>
             <div><div class="a-label">App icon</div><label class="drop icon">${g.icon ? `<img src="${esc(imgSrc(g.icon))}" data-path="${esc(g.icon)}" alt="App icon">` : '<span>Upload square</span>'}<input type="file" accept="image/*" data-img="icon" aria-label="Upload app icon"></label></div>
             <div><div class="a-label">Screenshots</div><div class="a-shots">${shots}<label class="drop add"><span>+ Add</span><input type="file" accept="image/*" multiple data-img="shots" aria-label="Add screenshots"></label></div></div>
           </div>
-          ${fld('trailer', 'Trailer link', 'Optional YouTube link', 'type="url" placeholder="https://www.youtube.com/watch?v=..."')}
-        </div>
-        <div class="a-panel"><h2>Stores</h2><p class="hint">Only the stores you switch on appear on the website.</p>${stores}</div>
-        <div class="a-panel"><h2>Rating and downloads</h2><p class="hint">Copy these from your store listing, and keep them true. Leave empty to hide them.</p>
-          <div class="a-grid3">${fld('rating', 'Rating (0 to 5)', '', 'type="number" min="0" max="5" step="0.1"')}${fld('ratingCount', 'Number of ratings', '', 'placeholder="1,200"')}${fld('downloads', 'Downloads', '', 'placeholder="10K+"')}</div></div>
-        <div class="a-panel"><h2>Privacy details</h2><p class="hint">These answers write this game's privacy policy. They must match your Google Play Data safety form.</p>
+          ${fld('trailer', 'Trailer link', 'Optional YouTube link', 'type="url" placeholder="https://www.youtube.com/watch?v=..."')}</div>`)}
+        ${pane('stores', `<div class="a-panel"><h2>Stores</h2><p class="hint">Only the stores you switch on appear on the website.</p>${stores}</div>`)}
+        ${pane('stats', `<div class="a-panel"><h2>Rating and downloads</h2><p class="hint">Copy these from your store listing, and keep them true. Leave empty to hide them.</p>
+          <div class="a-grid3">${fld('rating', 'Rating (0 to 5)', '', 'type="number" min="0" max="5" step="0.1"')}${fld('ratingCount', 'Number of ratings', '', 'placeholder="1,200"')}${fld('downloads', 'Downloads', '', 'placeholder="10K+"')}</div></div>`)}
+        ${pane('privacy', `<div class="a-panel"><h2>Privacy details</h2><p class="hint">These answers write this game's privacy policy. They must match your Google Play Data safety form.</p>
           <div class="a-checks">${sw('ads', 'Shows ads')}${sw('iap', 'In-app purchases')}${sw('accounts', 'Players can create accounts')}${sw('children', 'Made for children')}</div>
-          <div class="a-label" style="margin-top:16px">Services used in the game</div><div class="a-checks" style="margin-top:0">${SDKS.map(([k, l]) => `<label class="switch"><input type="checkbox" data-s="${k}" ${(g.sdks || []).includes(k) ? 'checked' : ''}>${l}</label>`).join('')}</div></div>
+          <div class="a-label" style="margin-top:18px">Services used in the game</div><div class="a-checks" style="margin-top:0">${SDKS.map(([k, l]) => `<label class="switch"><input type="checkbox" data-s="${k}" ${(g.sdks || []).includes(k) ? 'checked' : ''}>${l}</label>`).join('')}</div></div>`)}
       </div>
       <div class="a-side-col">
         <div class="a-prev"><div class="a-label">Card preview</div><div class="gc" id="prev"></div></div>
-        <div class="a-panel" style="margin:0"><h2>Status</h2>
-          <p style="margin-top:6px"><span class="a-pill ${g.status === 'published' ? 'pub' : ''}">${g.status === 'published' ? 'Published' : 'Draft'}</span></p>
-          <ul class="a-check" id="checks"></ul></div>
+        <div class="a-panel" style="margin:0"><h2>Ready to publish</h2><ul class="a-check" id="checks"></ul></div>
         <div class="a-panel" style="margin:0"><h2>Links for your store listing</h2><p class="hint">Paste these into Play Console and App Store Connect.</p>${legal}</div>
       </div></div>`);
     wireEdit();
@@ -253,7 +279,8 @@
   }
   function wireEdit() {
     const g = S.edit;
-    const touch = () => { S.dirty = true; refreshSide(); };
+    const touch = () => { S.dirty = true; const d = document.getElementById('dirty'); if (d) d.hidden = false; refreshSide(); };
+    app.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { S.tab = b.dataset.tab; app.querySelectorAll('[data-tab]').forEach((x) => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); }); app.querySelectorAll('[data-pane]').forEach((p) => { p.hidden = p.dataset.pane !== S.tab; }); }));
     app.querySelectorAll('[data-k]').forEach((el) => el.addEventListener('input', () => { g[el.dataset.k] = el.value; touch(); }));
     document.getElementById('f-features').addEventListener('input', (e) => { g.features = e.target.value.split('\n').map((x) => x.trim()).filter(Boolean); touch(); });
     app.querySelectorAll('[data-c]').forEach((el) => el.addEventListener('change', () => { g[el.dataset.c] = el.checked; const m = el.dataset.c.match(/^(play|appStore|steam)On$/); if (m) app.querySelector(`[data-store="${m[1]}"]`).hidden = !el.checked; touch(); }));
@@ -264,7 +291,7 @@
       const kind = el.dataset.img; const files = [...el.files]; if (!files.length) return;
       const id = g.id || (g.id = uniqueId(slugify(g.name) || 'game'));
       try {
-        if (kind === 'cover') { const r = await processImage(files[0], 1200, 1600, 'cover'); if (g.cover) { S.removed.push('site' + g.cover); delete S.pending['site' + g.cover]; } g.cover = queueImage(id, 'cover', r); }
+        if (kind === 'cover') { const r = await processImage(files[0], 1440, 600, 'cover'); if (g.cover) { S.removed.push('site' + g.cover); delete S.pending['site' + g.cover]; } g.cover = queueImage(id, 'cover', r); }
         else if (kind === 'icon') { const r = await processImage(files[0], 512, 512, 'cover'); if (g.icon) { S.removed.push('site' + g.icon); delete S.pending['site' + g.icon]; } g.icon = queueImage(id, 'icon', r); }
         else { for (let i = 0; i < files.length; i++) { const r = await processImage(files[i], 1600, 1600, 'fit'); g.screenshots.push(queueImage(id, `shot-${i}`, r)); } }
         S.dirty = true; renderEdit();
@@ -283,7 +310,7 @@
   }
   async function saveGame(status, btn) {
     const g = S.edit;
-    if (!g.name.trim()) { toast('Add a game name first.', true); document.getElementById('f-name').focus(); return; }
+    if (!g.name.trim()) { toast('Add a game name first.', true); S.tab = 'basics'; app.querySelector('[data-tab=basics]').click(); document.getElementById('f-name').focus(); return; }
     const bad = storeProblem(g); if (bad) return toast(bad, true);
     if (status === 'published') { const miss = publishChecks(g).filter(([, ok]) => !ok).map(([l]) => l); if (miss.length) return toast(`To publish, still needed: ${miss.join(', ')}. The description needs at least 40 characters.`, true); }
     if (S.isNew && !g.id) g.id = uniqueId(slugify(g.name));
@@ -302,10 +329,14 @@
   window.addEventListener('beforeunload', (e) => { if (S.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
   /* ---------- start ---------- */
-  (async function start() {
+  async function boot() {
     try { const r = await fetch('/__admin/ping', { cache: 'no-store' }); if (r.ok) { S.mode = 'local'; await loadData(); return render(); } } catch (e) { /* not running locally */ }
     const saved = localStorage.getItem('sb-admin') || sessionStorage.getItem('sb-admin');
     if (saved) { try { S.gh = JSON.parse(saved); S.mode = 'github'; await loadData(); return render(); } catch (e) { S.mode = null; return renderLogin(e.message); } }
     renderLogin();
+  }
+  (function start() {
+    if (sessionStorage.getItem('sb-auth') !== '1') return renderGate();
+    boot();
   })();
 })();

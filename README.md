@@ -43,9 +43,11 @@ Open `/admin/` (for example https://stonebuildgames.com/admin/, or http://localh
 
 - **Add game:** name, description, features, images, store links, rating, downloads and privacy answers. Save as draft or publish.
 - **Stores:** a store button only appears on the website when you switch that store on and add its link.
-- **Home page:** the games section appears only once at least 4 games are published. The first 4 in the admin list are shown.
+- **Home page:** the games section appears only once at least 4 games are published. The first 6 in the admin list are shown, in wide boxes like the services section. Use horizontal images.
 - **Every published game gets its own pages:** `/games/<name>/` plus `privacy`, `terms`, `support` and `delete-data`. The admin shows these links ready to paste into Play Console and App Store Connect.
 - **Settings:** developer name, legal name, country, support email and the hero store buttons.
+
+**Admin login.** The username and password only open the panel. Change them with `python3 tools/set_admin_password.py`; only a salted hash is stored. Publishing online also needs the GitHub token, once per browser, and that token is the real protection.
 
 **How saving works.** The site has no server. Online, the admin commits your changes to this GitHub repository, then the host rebuilds the site (about a minute). You sign in with a GitHub fine-grained token that only has Contents read and write on this repository. It stays in your browser. On your computer (`tools/serve.py`) saving writes to `site/` directly, so you then push with git.
 
@@ -87,8 +89,6 @@ If you later want a hosted form, point the form at Formspree or Netlify Forms an
 
 ## Before launch: fill in the blanks
 
-- Footer social icons point to `#`. Replace them with your YouTube / Instagram / X / LinkedIn URLs
-  (search for `rel="nofollow"` in the pages) or delete the ones you do not use.
 - Terms section 16 names no country. Add the country where the studio is registered.
 - Consider adding founder name and country to the Organization schema in `site/index.html` once you want them public.
 - If you deploy on Cloudflare, check that its AI-crawler blocking is off (it can override `robots.txt`).

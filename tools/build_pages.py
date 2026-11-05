@@ -5,6 +5,18 @@ from services_content import SERVICE_PAGES
 os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'site'))
 MARK='<svg class="brand-mark" viewBox="18 7 180 180" aria-hidden="true"><g stroke="#fff" stroke-width="3" stroke-linejoin="round"><polygon points="100,20 169.28,60 134.64,80 100,60 65.36,80 30.72,60" fill="#FF6A2B"/><polygon points="169.28,60 169.28,140 100,180 100,140 134.64,120 134.64,80" fill="#52525B"/><polygon points="30.72,60 65.36,80 65.36,120 100,140 100,180 30.72,140" fill="#0A0A0B"/><polygon points="100,100 134.64,120 100,140 65.36,120" fill="#9E411A"/><polygon points="100,60 100,100 65.36,120 65.36,80" fill="#27272A"/><polygon points="100,60 134.64,80 134.64,120 100,100" fill="#3F3F46"/><polygon points="172,14 185.86,22 172,30 158.14,22" fill="#FF6A2B"/><polygon points="172,30 185.86,22 185.86,38 172,46" fill="#52525B"/><polygon points="158.14,22 172,30 172,46 158.14,38" fill="#0A0A0B"/></g></svg>'
 D='https://stonebuildgames.com'
+
+with open('data/games.json') as _f: _D=json.load(_f)
+_S=_D.get('settings',{})
+_SOC=_S.get('social') or {}
+SOCIAL_DEF=[('instagram','Instagram','<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="#E4405F" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="#E4405F" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1.3" fill="#E4405F"/></svg>'),
+ ('x','X','<svg viewBox="0 0 24 24" aria-hidden="true" fill="#0A0A0B"><path d="M17.8 3h3.1l-6.8 7.8 8 10.2h-6.3l-4.9-6.4L5.3 21H2.2l7.3-8.3L1.8 3h6.4l4.4 5.9zm-1.1 16.2h1.7L7 4.7H5.2z"/></svg>'),
+ ('reddit','Reddit','<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="8.5" fill="#FF4500"/><ellipse cx="12" cy="14.5" rx="5.6" ry="3.9" fill="#fff"/><circle cx="9.7" cy="13.7" r="1.15" fill="#FF4500"/><circle cx="14.3" cy="13.7" r="1.15" fill="#FF4500"/><path d="M9.6 16.2c1.4 1 3.4 1 4.8 0" fill="none" stroke="#FF4500" stroke-width="1" stroke-linecap="round"/><path d="m12 6 1-3.3 3 .8" fill="none" stroke="#FF4500" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="17" cy="3.8" r="1.5" fill="#FF4500"/></svg>'),
+ ('tiktok','TikTok','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3c.3 2.4 1.7 3.9 4 4.1v2.8c-1.5 0-2.8-.4-4-1.2v6.2a5.6 5.6 0 1 1-4.8-5.5v2.9a2.8 2.8 0 1 0 2 2.7V3z" fill="#25F4EE" transform="translate(-1 -.6)"/><path d="M15 3c.3 2.4 1.7 3.9 4 4.1v2.8c-1.5 0-2.8-.4-4-1.2v6.2a5.6 5.6 0 1 1-4.8-5.5v2.9a2.8 2.8 0 1 0 2 2.7V3z" fill="#FE2C55" transform="translate(1 .6)"/><path d="M15 3c.3 2.4 1.7 3.9 4 4.1v2.8c-1.5 0-2.8-.4-4-1.2v6.2a5.6 5.6 0 1 1-4.8-5.5v2.9a2.8 2.8 0 1 0 2 2.7V3z" fill="#0A0A0B"/></svg>'),
+ ('linkedin','LinkedIn','<svg viewBox="0 0 24 24" aria-hidden="true" fill="#0A66C2"><path d="M6.9 21H3.1V8.6h3.8zM5 6.9A2.2 2.2 0 1 1 5 2.5a2.2 2.2 0 0 1 0 4.4zM21 21h-3.8v-6c0-1.4 0-3.3-2-3.3s-2.3 1.6-2.3 3.2V21H9.1V8.6h3.6v1.7h.1a4 4 0 0 1 3.6-2c3.8 0 4.6 2.5 4.6 5.8z"/></svg>'),
+ ('youtube','YouTube','<svg viewBox="0 0 24 24" aria-hidden="true" fill="#FF0000"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 23.5 12 31 31 0 0 0 23 7.2z"/><path fill="#fff" d="M9.8 15.1V8.9L15.8 12z"/></svg>')]
+_soc_on=[(k,l,ic,_SOC[k]) for k,l,ic in SOCIAL_DEF if re.match(r'^https://[^\s"<>]+$',str(_SOC.get(k) or ''))]
+SOCIAL_HTML=''.join(f'<a href="{html.escape(u,quote=True)}" target="_blank" rel="noopener me" aria-label="{l}" title="{l}">{ic}</a>' for k,l,ic,u in _soc_on)
 STUDIO_SENTENCE='StoneBuild Games is an independent, remote game development studio that builds 3D, 2D and multiplayer games for Android, iOS and PC with Unity, Unreal Engine and Godot.'
 def svg(path, sw='1.8', fill='none'):
     return f'<svg viewBox="0 0 24 24" fill="{fill}" stroke="currentColor" stroke-width="{sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{path}</svg>'
@@ -112,15 +124,7 @@ FOOTER=f'''  <footer class="site-footer">
         <div class="footer-brand">
           <a class="brand" href="/">{FMARK}<span class="brand-name"><span class="brand-top">Stone Build</span><span class="brand-sub">Games</span></span></a>
           <p>Independent, remote game development studio building 3D, 2D and multiplayer games for Android, iOS and PC.</p>
-          <!-- Replace the "#" links below with your real profile URLs -->
-          <div class="socials" aria-label="Social links">
-            <a href="/games/" aria-label="Our games on Google Play" title="Google Play">{I['playmono']}</a>
-            <a href="#" rel="nofollow" aria-label="YouTube" title="YouTube">{I['yt']}</a>
-            <a href="#" rel="nofollow" aria-label="Instagram" title="Instagram">{I['ig']}</a>
-            <a href="#" rel="nofollow" aria-label="X (Twitter)" title="X">{I['x']}</a>
-            <a href="#" rel="nofollow" aria-label="LinkedIn" title="LinkedIn">{I['in']}</a>
-            <a href="mailto:support@stonebuildgames.com" aria-label="Email us" title="Email">{I['mail']}</a>
-          </div>
+          <div class="socials" aria-label="Social links">{SOCIAL_HTML}<a class="s-mail" href="mailto:support@stonebuildgames.com" aria-label="Email us" title="Email">{I['mail']}</a></div>
         </div>
         <div>
           <p class="footer-h">Studio</p>
@@ -166,6 +170,7 @@ ORG={"@type":"Organization","@id":f"{D}/#organization","name":"StoneBuild Games"
  "description":STUDIO_SENTENCE,"email":"support@stonebuildgames.com",
  "contactPoint":[{"@type":"ContactPoint","email":"support@stonebuildgames.com","contactType":"customer service","availableLanguage":["English"]},{"@type":"ContactPoint","email":"support@stonebuildgames.com","contactType":"sales","availableLanguage":["English"],"areaServed":"Worldwide"}],
  "knowsAbout":["Game development","Unity","Unreal Engine","Godot","3D game development","Mobile games","Multiplayer games"]}
+if _soc_on: ORG['sameAs']=[u for *_,u in _soc_on]
 WEBSITE={"@type":"WebSite","@id":f"{D}/#website","url":f"{D}/","name":"StoneBuild Games","alternateName":"StoneBuild","description":"Game development studio for 3D, 2D and multiplayer games.","publisher":{"@id":f"{D}/#organization"},"inLanguage":"en"}
 def webpage(path,title,desc,typ='WebPage',extra=None):
     p={"@type":typ,"@id":f"{D}{path}#webpage","url":f"{D}{path}","name":title,"description":desc,"inLanguage":"en","isPartOf":{"@id":f"{D}/#website"},"publisher":{"@id":f"{D}/#organization"}}
@@ -310,15 +315,20 @@ def hero_store(url, icon, label):
 HERO_STORES=hero_store(SET.get('playDeveloperUrl'),'play','Google Play')+hero_store(SET.get('appStoreDeveloperUrl'),'apple','App Store')
 CUBE='<svg viewBox="154 10 36 40"><g stroke="#fff" stroke-width="2" stroke-linejoin="round"><polygon points="172,14 185.86,22 172,30 158.14,22" fill="#FF6A2B"/><polygon points="172,30 185.86,22 185.86,38 172,46" fill="#52525B"/><polygon points="158.14,22 172,30 172,46 158.14,38" fill="#0A0A0B"/></g></svg>'
 def game_card(g, rv=' reveal'):
-    img=f'<img src="{E(g["cover"])}" alt="{E(g["name"])} cover art" loading="lazy" width="1200" height="1600">' if asset_ok(g.get('cover')) else '<div class="art"></div>'
+    img=f'<img src="{E(g["cover"])}" alt="{E(g["name"])} cover art" loading="lazy" width="1440" height="600">' if asset_ok(g.get('cover')) else '<div class="art"></div>'
     links=store_links(g); first=''
     if links:
         ic,u,_,l=links[0]
         first=f'<a class="btn btn-primary btn-sm" href="{E(u)}" target="_blank" rel="noopener">{I[ic]}{l}<span class="sr-only"> (opens in a new tab)</span></a>'
     return f'''<article class="gc{rv}">{img}<div class="gc-over"><h3>{E(g["name"])}</h3><div class="gc-actions">{first}<a class="btn btn-light btn-sm" href="/games/{E(g["id"])}/">Explore {I['arrow']}</a></div></div></article>'''
+def game_grid(items):
+    # Same box grid as the services section; a last cell fills any gap in the final row
+    left=(3-len(items)%3)%3
+    fill=f'<a class="gc-more reveal" href="/games/" style="grid-column:span {left}">More games coming. See all games {I["arrow"]}</a>' if left else ''
+    return '<div class="gc-grid">'+''.join(game_card(g) for g in items)+fill+'</div>'
 HOME_GAMES=''
 if len(GAMES)>=4:
-    cards=''.join(game_card(g) for g in GAMES[:4])
+    cards=game_grid(GAMES[:6])
     HOME_GAMES=f'''    <!-- GAMES (shown once at least four games are published) -->
     <section class="screen" id="games" aria-labelledby="games-title">
       <div class="container">
@@ -328,7 +338,7 @@ if len(GAMES)>=4:
           <p class="lead reveal">Our own titles, made with the same team and pipeline we use for client work.</p>
           <a class="link-arrow head-link reveal" href="/games/">See all games {I['arrow']}</a>
         </div>
-        <div class="gc-grid">{cards}</div>
+        {cards}
       </div>
     </section>
 
@@ -392,7 +402,7 @@ def write_game(g):
     badges=store_badges(g) or '<span class="status">Coming soon</span>'
     trailer=f'<a class="btn btn-ghost" href="{E(g["trailer"])}" target="_blank" rel="noopener">{I["video"]}Watch trailer</a>' if good_url(g.get('trailer')) else ''
     icon=f'<img class="g-icon" src="{E(g["icon"])}" alt="{name} icon" width="96" height="96">' if asset_ok(g.get('icon')) else ''
-    cover=f'<img class="g-cover" src="{E(g["cover"])}" alt="{name} cover art" width="1200" height="1600">' if asset_ok(g.get('cover')) else ''
+    cover=f'<img class="g-cover" src="{E(g["cover"])}" alt="{name} cover art" width="1440" height="600">' if asset_ok(g.get('cover')) else ''
     shots=[u for u in g.get('screenshots',[]) if asset_ok(u)]
     shots_html=''
     if shots:
@@ -780,7 +790,7 @@ ld={"@context":"https://schema.org","@graph":[webpage('/games/',T,DESC,'Collecti
 _lead='Every title we publish lives here. Hover a game to open its store page or explore it.' if GAMES else 'Our first original title is in production for Android. Its Google Play link, screenshots and trailer will be posted here the day it launches.'
 body=page_hero('Games','Our games','Games by StoneBuild',_lead)
 if GAMES:
-    _grid='<div class="gc-grid wrap">'+''.join(game_card(g) for g in GAMES)+'</div>'
+    _grid=game_grid(GAMES)
 else:
     _grid=f'''<div class="games-grid"><article class="card game-card"><div class="game-cover"><div class="art" aria-hidden="true"></div><div class="label"><div><span class="status">In production</span><h3>Our first title</h3><p>Coming to Google Play</p></div></div></div></article></div>'''
 body+=f'''    <section class="page-body" aria-labelledby="grid-title">
