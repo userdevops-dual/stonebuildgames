@@ -85,7 +85,8 @@ def head(title, desc, path, ld, robots='index, follow, max-image-preview:large',
   <meta name="twitter:title" content="{title}">
   <meta name="twitter:description" content="{desc}">
   <meta name="twitter:image" content="{D}/assets/og-image.png">
-  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/assets/favicon-48.png" type="image/png" sizes="48x48">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
@@ -526,12 +527,12 @@ home_body=f'''
             <a class="btn btn-primary btn-lg" href="/contact/">Start a project {I['arrow']}</a>
             <a class="btn btn-ghost btn-lg" href="/services/">Explore services</a>
           </div>
-          <div class="hero-stores reveal">{HERO_STORES}</div>
           <dl class="hero-stats reveal">
             <div class="stat"><dt class="sr-only">Prototype</dt><dd><b>1 week</b> <span>To a playable prototype</span></dd></div>
             <div class="stat"><dt class="sr-only">Engines</dt><dd><b>3 engines</b> <span>Unity · Unreal · Godot</span></dd></div>
             <div class="stat"><dt class="sr-only">Platforms</dt><dd><b>3 platforms</b> <span>Android · iOS · PC</span></dd></div>
           </dl>
+          <div class="hero-stores reveal">{HERO_STORES}</div>
         </div>
         <div class="hero-visual reveal" aria-hidden="true">
           <div class="hv-disc d1"></div><div class="hv-disc d2"></div><div class="hv-disc d3"></div>

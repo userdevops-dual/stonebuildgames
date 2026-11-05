@@ -59,6 +59,21 @@ def app_icon_svg(bg="#0E0E10", rounded=False):
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512"{corner} fill="{bg}"/>'
             f'<g transform="translate(91 91) scale({k:.4f}) translate(-18 -7)">{polys_svg(ON_DARK, bg)}</g></svg>\n')
 
+BLOCK = ['top', 'right', 'left', 'floor', 'wall_l', 'wall_r']  # the small cube is unreadable at favicon size
+def favicon_svg():
+    p = "".join(f'<polygon points="{GEOM[k]}" fill="{ON_LIGHT[k]}"/>' for k in BLOCK)
+    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 14 172 172"><g stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round">{p}</g></svg>\n'
+def draw_favicon(size, ss=8):
+    W = size * ss; k = W / 172
+    im = Image.new("RGBA", (W, W), (0, 0, 0, 0)); d = ImageDraw.Draw(im); sw = max(1, round(5 * k))
+    for key in BLOCK:
+        q = [((float(a) - 14) * k, (float(b) - 14) * k) for a, b in (x.split(',') for x in GEOM[key].split())]
+        d.polygon(q, fill=ON_LIGHT[key]); d.line(q + [q[0]], fill="#FFFFFF", width=sw, joint="curve")
+    return im.resize((size, size), Image.LANCZOS)
+def white_icon(size):
+    im = Image.new("RGBA", (size, size), "#FFFFFF"); m = round(size * .8)
+    im.alpha_composite(draw_favicon(m), ((size - m) // 2, (size - m) // 2)); return im.convert("RGB")
+
 def hex2(c): return tuple(int(c[i:i+2], 16) for i in (1, 3, 5))
 
 def draw_mark(size, c, stroke, ss=4):
@@ -121,13 +136,13 @@ def main():
     fg.convert("RGB").save("brand/png/google-play-feature-graphic-1024x500.png", optimize=True)
     # ---------- Website icons ----------
     if os.path.isdir("site/assets"):
-        write("site/assets/favicon.svg", app_icon_svg(rounded=True))
-        write("site/assets/logo-512.svg", app_icon_svg())
+        write("site/assets/favicon.svg", favicon_svg())
         write("site/assets/logo.svg", l_light)
-        app_icon_png(512).convert("RGB").save("site/assets/logo-512.png", optimize=True)
-        app_icon_png(192).convert("RGB").save("site/assets/icon-192.png", optimize=True)
-        app_icon_png(180).convert("RGB").save("site/assets/apple-touch-icon.png", optimize=True)
-        app_icon_png(64).resize((32, 32), Image.LANCZOS).save("site/favicon.ico", sizes=[(16, 16), (32, 32)])
+        draw_favicon(48).save("site/assets/favicon-48.png", optimize=True)
+        white_icon(512).save("site/assets/logo-512.png", optimize=True)
+        white_icon(192).save("site/assets/icon-192.png", optimize=True)
+        white_icon(180).save("site/assets/apple-touch-icon.png", optimize=True)
+        draw_favicon(256).save("site/favicon.ico", sizes=[(16, 16), (32, 32), (48, 48)])
         # Social share image, white theme
         og = glow(1200, 630, [((640, -360, 1400, 400), "#FFDCC9")])
         og.alpha_composite(draw_lockup(380, ON_LIGHT, "#FFFFFF", "#0A0A0B", "#C7430F", W), (96, 84))
