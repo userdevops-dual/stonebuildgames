@@ -135,7 +135,7 @@ a.card:hover, .card.tilt:hover { border-color: var(--line-strong); box-shadow: v
 .hero-fade { position: absolute; inset: auto 0 0 0; height: 18%; z-index: -1; background: linear-gradient(180deg, transparent, var(--bg)); pointer-events: none; }
 .hero-grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: clamp(24px, 4vw, 72px); align-items: center; }
 .hero-copy { display: grid; gap: clamp(18px, 2.6vh, 28px); justify-items: start; }
-.hero h1 { font-size: clamp(3.4rem, 7.4vw, 6.8rem); line-height: .94; letter-spacing: -0.03em; }
+.hero h1 { font-size: clamp(2.8rem, 5.05vw, 5rem); line-height: 1; letter-spacing: -0.03em; white-space: nowrap; }
 .hero h1 .line { display: block; }
 .hero h1 .line-accent { color: var(--accent-strong); }
 .h1-kicker { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-family: var(--font-mono); font-size: .76rem; font-weight: 500; letter-spacing: .14em; line-height: 1.4; text-transform: uppercase; color: var(--accent-ink); }
@@ -151,8 +151,23 @@ a.card:hover, .card.tilt:hover { border-color: var(--line-strong); box-shadow: v
 @keyframes pulse { 0%,100% { box-shadow: 0 0 0 3px rgba(22,163,74,.16); } 50% { box-shadow: 0 0 0 6px rgba(22,163,74,.05); } }
 
 .hero-visual { position: relative; width: 100%; max-width: 540px; aspect-ratio: 1; justify-self: end; --px: 0; --py: 0; }
-.hv-ring { position: absolute; inset: 5%; border-radius: 50%; border: 1px dashed var(--line-strong); animation: spin 70s linear infinite; }
-.hv-ring::after { content: ""; position: absolute; inset: 13%; border-radius: 50%; border: 1px solid var(--line); }
+.hv-disc { position: absolute; border-radius: 50%; animation: breathe 7s var(--ease-in-out) infinite; }
+.hv-disc.d1 { inset: 4%; background: #fff5f0; }
+.hv-disc.d2 { inset: 15%; background: #ffe9df; animation-delay: -1.5s; }
+.hv-disc.d3 { inset: 27%; background: #ffd9c7; animation-delay: -3s; }
+@keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+.hv-orbit { position: absolute; animation: spin 24s linear infinite; }
+.hv-orbit.o1 { inset: 4%; }
+.hv-orbit.o2 { inset: 15%; animation-duration: 16s; animation-direction: reverse; animation-delay: -5s; }
+.hv-orbit i { position: absolute; left: 50%; top: 0; width: 34px; height: 38px; margin: -19px 0 0 -17px; animation: spin 24s linear infinite reverse; }
+.hv-orbit.o2 i { width: 24px; height: 27px; margin: -13px 0 0 -12px; animation-duration: 16s; animation-direction: normal; animation-delay: -5s; }
+.hv-orbit svg { width: 100%; height: 100%; }
+.hv-glyph { position: absolute; width: 26px; height: 26px; fill: none; stroke: var(--accent-strong); stroke-width: 2.4; stroke-linejoin: round; animation: chip 6s var(--ease-in-out) infinite; }
+.hv-glyph.g1 { top: 7%; right: 13%; stroke: var(--ink); }
+.hv-glyph.g2 { bottom: 11%; right: 15%; animation-delay: -2s; }
+.hv-glyph.g3 { top: 40%; left: -1%; stroke: var(--ink); animation-delay: -4s; }
+.hv-ring { position: absolute; inset: 4%; border-radius: 50%; border: 1px dashed #f5b79c; animation: spin 70s linear infinite; }
+.hv-ring::after { content: ""; position: absolute; inset: 12.2%; border-radius: 50%; border: 1px dashed #f5b79c; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .hv-stage { position: absolute; inset: 15%; transform: translate3d(calc(var(--px) * 16px), calc(var(--py) * 12px), 0); transition: transform .6s var(--ease-out); }
 .hv-mark { position: relative; z-index: 1; width: 100%; height: 100%; overflow: visible; animation: hover 7s var(--ease-in-out) infinite; }
@@ -431,7 +446,7 @@ h2[id], h3[id], .page-section[id] { scroll-margin-top: calc(var(--header-h) + 16
   .hero.screen { min-height: 100svh; }
   .hero-grid, .games-layout, .why-layout, .contact-layout, .play-layout { grid-template-columns: 1fr; }
   .hero-visual { display: none; }
-  .hero h1 { font-size: clamp(3.2rem, 17vw, 5rem); }
+  .hero h1 { font-size: clamp(2.2rem, 9.8vw, 4.6rem); }
   .section-head.split { grid-template-columns: 1fr; }
   .section-head.split .lead, .section-head.split .head-link { grid-column: 1; grid-row: auto; }
   .process { grid-template-columns: 1fr; gap: 22px; }
@@ -481,7 +496,7 @@ h2[id], h3[id], .page-section[id] { scroll-margin-top: calc(var(--header-h) + 16
   .svc { padding: 14px 20px; }
   .svc .icon { width: 36px; height: 36px; }
   .svc p { font-size: .86rem; line-height: 1.5; }
-  .hero h1 { font-size: clamp(3rem, 6.4vw, 5rem); }
+  .hero h1 { font-size: clamp(2.6rem, 4.9vw, 4.2rem); }
   .h1-kicker { margin-bottom: 12px; }
   .hero-visual { max-width: 400px; }
   .why-item { padding: 11px 16px; }

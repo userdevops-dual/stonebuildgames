@@ -60,7 +60,7 @@ def head(title, desc, path, ld, robots='index, follow, max-image-preview:large',
   <meta property="og:image" content="{D}/assets/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="StoneBuild Games mined-block logo with the words Dig. Build. Play.">
+  <meta property="og:image:alt" content="StoneBuild Games mined-block logo with the words Building worlds worth playing.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{title}">
   <meta name="twitter:description" content="{desc}">
@@ -238,7 +238,7 @@ def dots(items):
 T_HOME='3D &amp; Mobile Game Development Studio | StoneBuild Games'
 DESC_HOME='Game development studio building 3D, 2D and multiplayer games for Android, iOS and PC in Unity, Unreal and Godot. From prototype to store launch.'
 ld_home={"@context":"https://schema.org","@graph":[ORG,WEBSITE,
- {"@type":"ImageObject","@id":f"{D}/#primaryimage","url":f"{D}/assets/og-image.png","contentUrl":f"{D}/assets/og-image.png","width":1200,"height":630,"caption":"StoneBuild Games mined-block logo with the words Dig. Build. Play."},
+ {"@type":"ImageObject","@id":f"{D}/#primaryimage","url":f"{D}/assets/og-image.png","contentUrl":f"{D}/assets/og-image.png","width":1200,"height":630,"caption":"StoneBuild Games mined-block logo with the words Building worlds worth playing."},
  webpage('/','3D & Mobile Game Development Studio | StoneBuild Games',DESC_HOME,extra={"about":{"@id":f"{D}/#organization"},"primaryImageOfPage":{"@id":f"{D}/#primaryimage"},"image":{"@id":f"{D}/#primaryimage"}})]}
 home_body=f'''
   {dots([('top','Intro'),('services','Services'),('play','Play'),('games','Games'),('why','Why us'),('contact','Contact')])}
@@ -253,7 +253,7 @@ home_body=f'''
           <div class="badge-row reveal">
             <span class="pill"><i class="dot" aria-hidden="true"></i> Accepting new projects</span>
           </div>
-          <h1 id="hero-title" class="hero-text"><span class="h1-kicker">3D &amp; mobile game development studio</span><span class="line">Dig. Build.</span> <span class="line line-accent">Play.</span></h1>
+          <h1 id="hero-title" class="hero-text"><span class="h1-kicker">3D &amp; mobile game development studio</span><span class="line">Building worlds</span> <span class="line line-accent">worth playing.</span></h1>
           <p class="lead hero-text">We design and build 3D, 2D and multiplayer games for Android, iOS and PC, from the first playable prototype to launch day on the store, and the updates after.</p>
           <div class="hero-cta reveal">
             <a class="btn btn-primary btn-lg" href="/contact/">Start a project {I['arrow']}</a>
@@ -266,7 +266,11 @@ home_body=f'''
           </dl>
         </div>
         <div class="hero-visual reveal" aria-hidden="true">
+          <div class="hv-disc d1"></div><div class="hv-disc d2"></div><div class="hv-disc d3"></div>
           <div class="hv-ring"></div>
+          <div class="hv-orbit o1"><i><svg viewBox="154 10 36 40" aria-hidden="true"><g stroke="#fff" stroke-width="2" stroke-linejoin="round"><polygon points="172,14 185.86,22 172,30 158.14,22" fill="#FF6A2B"/><polygon points="172,30 185.86,22 185.86,38 172,46" fill="#52525B"/><polygon points="158.14,22 172,30 172,46 158.14,38" fill="#0A0A0B"/></g></svg></i></div>
+          <div class="hv-orbit o2"><i><svg viewBox="154 10 36 40" aria-hidden="true"><g stroke="#fff" stroke-width="2" stroke-linejoin="round"><polygon points="172,14 185.86,22 172,30 158.14,22" fill="#FF6A2B"/><polygon points="172,30 185.86,22 185.86,38 172,46" fill="#52525B"/><polygon points="158.14,22 172,30 172,46 158.14,38" fill="#0A0A0B"/></g></svg></i></div>
+          <svg class="hv-glyph g1" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg><svg class="hv-glyph g2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg><svg class="hv-glyph g3" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l9 16H3z"/></svg>
           <div class="hv-stage">
             <svg class="hv-mark" viewBox="18 7 180 180">
               <g stroke="#fff" stroke-width="2.6" stroke-linejoin="round">

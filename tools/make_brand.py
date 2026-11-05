@@ -131,11 +131,11 @@ def main():
         # Social share image, white theme
         og = glow(1200, 630, [((640, -360, 1400, 400), "#FFDCC9")])
         og.alpha_composite(draw_lockup(380, ON_LIGHT, "#FFFFFF", "#0A0A0B", "#C7430F", W), (96, 84))
-        draw_text(og, CHAKRA, "Dig. Build.", 104, (96, 340), -0.01, "#0A0A0B")
-        draw_text(og, CHAKRA, "Play.", 104, (96, 448), -0.01, "#F2570F")
-        draw_text(og, MONO, "GAME DEVELOPMENT STUDIO", 20, (96, 516), 0.12, "#52525B")
-        draw_text(og, MONO, "STONEBUILDGAMES.COM", 20, (96, 552), 0.12, "#71717A")
-        og.alpha_composite(draw_mark(430, ON_LIGHT, "#FFFFFF"), (700, 100))
+        draw_text(og, CHAKRA, "Building worlds", 70, (96, 340), -0.01, "#0A0A0B")
+        draw_text(og, CHAKRA, "worth playing.", 70, (96, 424), -0.01, "#F2570F")
+        draw_text(og, MONO, "GAME DEVELOPMENT STUDIO", 20, (96, 492), 0.12, "#52525B")
+        draw_text(og, MONO, "STONEBUILDGAMES.COM", 20, (96, 528), 0.12, "#71717A")
+        og.alpha_composite(draw_mark(360, ON_LIGHT, "#FFFFFF"), (790, 130))
         og.convert("RGB").save("site/assets/og-image.png", optimize=True)
     # ---------- Zip for easy download ----------
     with zipfile.ZipFile("brand/StoneBuild-Games-logo-package.zip", "w", zipfile.ZIP_DEFLATED) as z:
