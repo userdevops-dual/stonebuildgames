@@ -8,9 +8,9 @@ and terms (required for Google Play / App Store listings), with a 3D animated he
 ```
 site/                      ← publish this folder
   index.html               Home: 6 full-screen sections (hero, services, Stone Stack game, games, why us, contact)
-  services/index.html      Six services, engagement models, process, FAQ
+  services/                Six services overview, plus one detail page per service
   about/index.html         Studio story, values, process, toolbox
-  games/index.html         Games catalogue (first card is static; more come from js/games-data.js)
+  games/                   Games list, plus one folder per published game (generated)
   contact/index.html       Contact details + inquiry form (opens the visitor's email app)
   privacy-policy/index.html, terms/index.html, 404.html
   css/styles.css           Design system + layout (tokens at the top)
@@ -18,8 +18,8 @@ site/                      ← publish this folder
   js/main.js               Pill navbar, nav, section dots, reveals, page transitions, contact form
   js/hero3d.js             Three.js hero scene (lazy, desktop only; CSS fallback on phones)
   js/game.js               Stone Stack isometric mini-game (canvas)
-  js/games-data.js         ← EDIT THIS to add games
-  js/games.js              Renders game cards + VideoGame structured data
+  admin/                   Admin panel (noindex)
+  data/games.json          Games and settings, written by the admin panel
   vendor/                  gsap, ScrollTrigger, three (self-hosted, pinned)
   assets/                  favicon, logo, OG image
   robots.txt  sitemap.xml  llms.txt  site.webmanifest  _headers  .well-known/security.txt
@@ -37,16 +37,19 @@ python3 tools/serve.py
 ```
 Open http://localhost:8787
 
-## Add a game (when your game is ready)
+## Add a game (admin panel)
 
-1. Open `site/js/games-data.js`.
-2. Copy the `TEMPLATE` object into the `STONEBUILD_GAMES` array and fill it in:
-   `title`, `tagline`, `description`, `genre`, `platforms`, `status` (`live` / `coming-soon` / `in-production`),
-   `playStore` URL, optional `cover` image (put it in `site/assets/games/`, 1600×1000 WebP or PNG).
-3. Set `status: "live"` once it is on Google Play. The Games page and home section update automatically,
-   and live games get `VideoGame` structured data for Google.
-4. Replace the placeholder "Our first title" entry when the first game ships, and delete the static
-   placeholder card in `site/games/index.html` (the one marked `data-prerendered`); the script replaces it anyway.
+Open `/admin/` (for example https://stonebuildgames.com/admin/, or http://localhost:8787/admin/ when running `python3 tools/serve.py`).
+
+- **Add game:** name, description, features, images, store links, rating, downloads and privacy answers. Save as draft or publish.
+- **Stores:** a store button only appears on the website when you switch that store on and add its link.
+- **Home page:** the games section appears only once at least 4 games are published. The first 4 in the admin list are shown.
+- **Every published game gets its own pages:** `/games/<name>/` plus `privacy`, `terms`, `support` and `delete-data`. The admin shows these links ready to paste into Play Console and App Store Connect.
+- **Settings:** developer name, legal name, country, support email and the hero store buttons.
+
+**How saving works.** The site has no server. Online, the admin commits your changes to this GitHub repository, then the host rebuilds the site (about a minute). You sign in with a GitHub fine-grained token that only has Contents read and write on this repository. It stays in your browser. On your computer (`tools/serve.py`) saving writes to `site/` directly, so you then push with git.
+
+The generated privacy, terms and deletion pages are templates based on your answers. Check them against your Data safety form and have them reviewed if you need legal certainty.
 
 ## Google Play listing
 
@@ -54,28 +57,26 @@ Use these public URLs in Play Console:
 
 | Field | URL |
 |---|---|
-| Privacy policy | https://stonebuildgames.com/privacy-policy/ |
-| Terms | https://stonebuildgames.com/terms/ |
-| Data deletion (if your game has accounts) | https://stonebuildgames.com/privacy-policy/#data-deletion |
+| Privacy policy | Copy from the game in the admin panel |
+| Terms | Copy from the game in the admin panel |
+| Data deletion (if your game has accounts) | Copy from the game in the admin panel |
 | Website | https://stonebuildgames.com |
 | Support email | support@stonebuildgames.com |
 
-Before you submit, check the privacy policy's Section 4 and remove any SDK your game does not use
-(AdMob, Unity Ads, Firebase, Play Games Services). The Play "Data safety" form must match it.
+Before you submit, make sure the game's privacy answers in the admin match your Play "Data safety" form.
 
-## Deploy (pick one — all free)
+## Deploy
 
-**Cloudflare Pages (recommended):** Pages → Create project → Upload assets → upload the `site/` folder.
-Add custom domain `stonebuildgames.com` (Cloudflare manages DNS automatically). `_headers` is picked up.
+The host must run the build, because the admin saves data and the pages are generated from it.
 
-**Netlify:** drag the `site/` folder onto app.netlify.com/drop, then Domain settings → add `stonebuildgames.com`.
+**Cloudflare Pages:** Create project, Connect to Git, choose this repository. Build command `python3 tools/build_pages.py`, output directory `site`. Add the custom domain `stonebuildgames.com`.
 
-**GitHub Pages:** push `site/` contents to a repo, enable Pages, add a `CNAME` file containing `stonebuildgames.com`.
+**Netlify:** New site from Git, choose this repository. `netlify.toml` already holds the settings.
 
 After deploy:
 1. Submit `https://stonebuildgames.com/sitemap.xml` in Google Search Console and Bing Webmaster Tools.
-2. IndexNow: the key file `site/<key>.txt` is already in place; after launch, ping `https://api.indexnow.org/indexnow?url=https://stonebuildgames.com/&key=<key>` (the key is the file name).
-2. Verify the OG image at https://stonebuildgames.com/assets/og-image.png renders in a share preview.
+2. IndexNow: the key file in `site/` is already in place. After launch, ping `https://api.indexnow.org/indexnow?url=https://stonebuildgames.com/&key=<key>` (the key is the file name).
+3. Check the share image at https://stonebuildgames.com/assets/og-image.png.
 
 ## Email: support@stonebuildgames.com
 

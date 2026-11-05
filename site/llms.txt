@@ -6,8 +6,14 @@ The site is a small set of static HTML pages. No login or API is needed.
 
 ## Pages
 
-- [Home](https://stonebuildgames.com/): Studio overview, services summary, a playable mini-game, games and contact
+- [Home](https://stonebuildgames.com/): Studio overview, services summary and a playable mini-game
 - [Services](https://stonebuildgames.com/services/): Six game development services, engagement models, process and FAQ
+- [Full-cycle development](https://stonebuildgames.com/services/full-cycle-game-development/)
+- [3D games](https://stonebuildgames.com/services/3d-game-development/)
+- [Mobile and casual games](https://stonebuildgames.com/services/mobile-game-development/)
+- [Multiplayer and backend](https://stonebuildgames.com/services/multiplayer-game-development/)
+- [Game art and animation](https://stonebuildgames.com/services/game-art-and-animation/)
+- [Porting, QA and publishing](https://stonebuildgames.com/services/porting-qa-publishing/)
 - [About](https://stonebuildgames.com/about/): Why the studio exists, values, how it works, tools
 - [Games](https://stonebuildgames.com/games/): Titles published by the studio with platforms, status and store links. The first title is in production and has no store link yet
 - [Contact](https://stonebuildgames.com/contact/): Project inquiry form and email

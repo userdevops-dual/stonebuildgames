@@ -111,7 +111,7 @@
       const words = $$('.word', hero);
       const rest = $$('.reveal', hero);
       const h1 = $('.hero h1'), lead = $('.hero .lead');
-      gsap.set(rest, { opacity: 0, y: 26 });
+      gsap.set(rest, { y: 22 });
       if (words.length) {
         // Text is never fully transparent, so it still counts as the LCP element
         gsap.set(h1, { opacity: 1, y: 0 });
@@ -121,28 +121,24 @@
       }
       if (lead) gsap.fromTo(lead, { opacity: 0.35, y: 18 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.2,
         onComplete: () => { lead.classList.add('is-in'); lead.style.cssText = ''; } });
-      gsap.to(rest, { opacity: 1, y: 0, duration: 0.6, stagger: 0.06, ease: 'power3.out', delay: 0.25, onComplete: done(rest) });
-      // Parallax on scroll
-      if (isDesktop) {
-        gsap.to('.hero .container', { y: 140, opacity: 0.15, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });
-      }
+      gsap.to(rest, { y: 0, duration: 0.6, stagger: 0.06, ease: 'power3.out', delay: 0.25, onComplete: done(rest) });
     }
     // Full-screen sections: stagger when entering
     sections.filter((s) => !s.classList.contains('hero')).forEach((section) => {
       const items = $$('.reveal', section);
       if (!items.length) return;
-      gsap.set(items, { opacity: 0, y: 28 });
+      gsap.set(items, { y: 28 });
       ScrollTrigger.create({ trigger: section, start: 'top 72%', once: true,
-        onEnter: () => gsap.to(items, { opacity: 1, y: 0, duration: 0.6, stagger: 0.05, ease: 'power3.out', onComplete: done(items) }) });
+        onEnter: () => gsap.to(items, { y: 0, duration: 0.6, stagger: 0.05, ease: 'power3.out', onComplete: done(items) }) });
     });
     // Inner pages: group by nearest section
     const loose = reveals.filter((el) => !el.closest('section.screen'));
     const groups = new Map();
     loose.forEach((el) => { const key = el.closest('section') || document.body; if (!groups.has(key)) groups.set(key, []); groups.get(key).push(el); });
     groups.forEach((items, key) => {
-      gsap.set(items, { opacity: 0, y: 24 });
+      gsap.set(items, { y: 24 });
       ScrollTrigger.create({ trigger: key, start: 'top 85%', once: true,
-        onEnter: () => gsap.to(items, { opacity: 1, y: 0, duration: 0.8, stagger: 0.06, ease: 'power3.out', onComplete: done(items) }) });
+        onEnter: () => gsap.to(items, { y: 0, duration: 0.8, stagger: 0.06, ease: 'power3.out', onComplete: done(items) }) });
     });
     // Magnetic primary buttons
     if (isDesktop) $$('.btn-primary').forEach((btn) => {
